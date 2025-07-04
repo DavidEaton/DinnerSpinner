@@ -1,0 +1,16 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace DinnerSpinner.Domain
+{
+    public class Dish
+    {
+        [Required]
+        public int Id { get; set; }
+
+        [Required]
+        public string Name { get; set; }
+
+        [Required]
+        public Category Category { get; set; } = new Category();
+    }
+}
