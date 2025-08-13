@@ -17,7 +17,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\DinnerSpinner\DinnerSpinner.csproj" />
+	  <ProjectReference Include="..\DinnerSpinner\DinnerSpinner.Client.csproj" />
 	</ItemGroup>
 
 </Project>
