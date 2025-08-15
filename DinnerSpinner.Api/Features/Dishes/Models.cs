@@ -1,4 +1,4 @@
-﻿using DinnerSpinner.Domain;
+﻿using DinnerSpinner.Api.Domain;
 
 namespace DinnerSpinner.Api.Features.Dishes
 {

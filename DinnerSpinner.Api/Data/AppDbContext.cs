@@ -1,4 +1,4 @@
-﻿using DinnerSpinner.Domain;
+﻿using DinnerSpinner.Api.Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace DinnerSpinner.Api.Data
