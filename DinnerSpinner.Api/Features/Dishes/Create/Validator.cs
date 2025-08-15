@@ -1,6 +1,6 @@
 ﻿using FastEndpoints;
 
-namespace DinnerSpinner.Api.Features.Dishes
+namespace DinnerSpinner.Api.Features.Dishes.Create
 {
     public class Validator : Validator<Request>
     {
