@@ -1,8 +1,6 @@
 ﻿using DinnerSpinner.Api.Domain;
-//using DinnerSpinner.Api.Features.Dishes.List;
 using DinnerSpinner.Api.Features.Dishes.Create;
 using FastEndpoints;
-using System;
 
 namespace DinnerSpinner.Api.Features.Dishes
 {
@@ -23,11 +21,11 @@ namespace DinnerSpinner.Api.Features.Dishes
         }
         public IReadOnlyList<List.Response> FromEntities(IReadOnlyList<Dish> entities)
         {
-            return (IReadOnlyList<List.Response>)entities
+            return entities
                 .OfType<Dish>()
-                .Select(d => d.ToListResponse())
-                .Where(r => r is not null)
-                .Select(r => r!) // Ensure non-null for IReadOnlyList<Response>
+                .Select(dish => dish.ToListResponse())
+                .Where(response => response is not null)
+                .Select(response => response!) // Ensure non-null for IReadOnlyList<Response>
                 .ToList();
         }
     }

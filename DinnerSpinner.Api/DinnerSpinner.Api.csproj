@@ -25,4 +25,10 @@
 	  <Folder Include="Features\Dishes\Delete\" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <None Update="Data\dinnerspinner.db">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
+
 </Project>
