@@ -1,6 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using DinnerSpinner.Api.Features.Categories;
+using System.ComponentModel.DataAnnotations;
 
-namespace DinnerSpinner.Api.Domain
+namespace DinnerSpinner.Api.Features.Dishes
 {
     public class Dish
     {

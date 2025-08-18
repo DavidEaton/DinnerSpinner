@@ -4,12 +4,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DinnerSpinner.Api.Features.Dishes.GetById
 {
-    public sealed class Endpoint(AppDbContext db)
+    public sealed class GetById(AppDbContext db)
         : Endpoint<Request, Response>
     {
         public override void Configure()
         {
             Get("/api/dishes/{id:int}");
+            AllowAnonymous();
             Summary(s => s.Summary = "Get a dish by id");
         }
 

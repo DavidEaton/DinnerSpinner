@@ -1,4 +1,5 @@
-﻿using DinnerSpinner.Api.Domain;
+﻿using DinnerSpinner.Api.Features.Categories;
+using DinnerSpinner.Api.Features.Dishes;
 using Microsoft.EntityFrameworkCore;
 
 namespace DinnerSpinner.Api.Data

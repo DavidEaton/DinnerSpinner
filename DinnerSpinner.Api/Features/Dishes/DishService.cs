@@ -1,6 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
-using DinnerSpinner.Api.Common;
 using DinnerSpinner.Api.Data;
+using DinnerSpinner.Api.Features.Dishes.Update;
 using Microsoft.EntityFrameworkCore;
 using static DinnerSpinner.Api.Common.Errors;
 
@@ -43,7 +43,7 @@ namespace DinnerSpinner.Api.Features.Dishes
             return dishes;
         }
 
-        public Task<Result<Create.Response, Error>> UpdateAsync(int id, Create.Request request, CancellationToken cancellationToken)
+        public Task<Result<Response, Error>> UpdateAsync(int id, Request request, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }

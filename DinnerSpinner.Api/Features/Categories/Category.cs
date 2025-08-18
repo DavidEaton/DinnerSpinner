@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace DinnerSpinner.Api.Domain
+namespace DinnerSpinner.Api.Features.Categories
 {
     public class Category
     {

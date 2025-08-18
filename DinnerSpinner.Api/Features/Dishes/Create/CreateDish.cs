@@ -1,16 +1,17 @@
 ﻿using DinnerSpinner.Api.Data;
-using DinnerSpinner.Api.Domain;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
 
 namespace DinnerSpinner.Api.Features.Dishes.Create
 {
-    internal class Endpoint(AppDbContext db) : Endpoint<Request, Response, Mapper>
+    internal class CreateDish(AppDbContext db) : Endpoint<Request, Response>
     {
         public override void Configure()
         {
             Post("/api/dishes/create");
+            Validator<Validator>();
             AllowAnonymous();
+            Summary(s => s.Summary = "Create a new dish");
         }
         public override async Task HandleAsync(Request request, CancellationToken cancellationToken)
         {
@@ -35,7 +36,7 @@ namespace DinnerSpinner.Api.Features.Dishes.Create
             db.Dishes.Add(entity);
             await db.SaveChangesAsync(cancellationToken);
 
-            await Send.CreatedAtAsync<GetById.Endpoint>(
+            await Send.CreatedAtAsync<GetById.GetById>(
                 routeValues: new { id = entity.Id },
                 responseBody: entity.ToCreateResponse(),
                 cancellation: cancellationToken);

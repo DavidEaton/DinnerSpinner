@@ -1,6 +1,4 @@
-﻿using DinnerSpinner.Api.Domain;
-
-namespace DinnerSpinner.Api.Features.Dishes
+﻿namespace DinnerSpinner.Api.Features.Dishes
 {
     internal static class DishExtensions
     {
@@ -37,19 +35,5 @@ namespace DinnerSpinner.Api.Features.Dishes
             Name = dish.Name,
             Category = dish.Category?.Name ?? string.Empty
         };
-
-        //public static List.Response? ToResponse(this Dish dish) => new()
-        //{
-        //    Id = dish.Id,
-        //    Name = dish.Name,
-        //    Category = dish.Category?.Name ?? string.Empty
-        //};
-
-        //public static Update.Response? ToResponse(this Dish dish) => new()
-        //{
-        //    Id = dish.Id,
-        //    Name = dish.Name,
-        //    Category = dish.Category?.Name ?? string.Empty
-        //};
     }
 }

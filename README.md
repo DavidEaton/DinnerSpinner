@@ -77,13 +77,3 @@ A client-side “spin” is just getting the list and picking a random item. A f
 * PWA: offline + “Add to Home Screen”
 * Export/print a shopping list from the plan
 
-## License
-
-TBD.
-
-```
-
-**References**
-- FastEndpoints (REPR pattern, docs & swagger guidance). :contentReference[oaicite:0]{index=0}  
-- Blazor WebAssembly dev server package info (what powers `dotnet run` locally for WASM). :contentReference[oaicite:1]{index=1}
-```

@@ -1,4 +1,4 @@
-﻿using DinnerSpinner.Api.Domain;
+﻿using DinnerSpinner.Api.Features.Categories;
 
 namespace DinnerSpinner.Api.Features.Dishes.Update
 {
