@@ -2,9 +2,9 @@
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
 
-namespace DinnerSpinner.Api.Features.Dishes.GetById
+namespace DinnerSpinner.Api.Features.Dishes.Read.GetById
 {
-    public sealed class GetById(AppDbContext db)
+    public sealed class Endpoint(AppDbContext db)
         : Endpoint<Request, Response>
     {
         public override void Configure()

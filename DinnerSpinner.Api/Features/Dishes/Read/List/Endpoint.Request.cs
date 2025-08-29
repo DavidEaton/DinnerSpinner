@@ -1,4 +1,4 @@
-﻿namespace DinnerSpinner.Api.Features.Dishes.GetById
+﻿namespace DinnerSpinner.Api.Features.Dishes.Read.List
 {
     public class Request
     {

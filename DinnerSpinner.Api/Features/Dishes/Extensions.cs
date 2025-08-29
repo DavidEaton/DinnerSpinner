@@ -1,6 +1,6 @@
 ﻿namespace DinnerSpinner.Api.Features.Dishes
 {
-    internal static class DishExtensions
+    internal static class Extensions
     {
         public static Create.Response ToCreateResponse(this Dish dish)
         {
@@ -12,7 +12,7 @@
             };
         }
 
-        public static GetById.Response? ToGetByIdResponse(this Dish dish) => new()
+        public static Read.GetById.Response? ToGetByIdResponse(this Dish dish) => new()
         {
             Id = dish.Id,
             Name = dish.Name,
@@ -29,7 +29,7 @@
             };
         }
 
-        public static List.Response? ToListResponse(this Dish dish) => new()
+        public static Read.List.Response? ToListResponse(this Dish dish) => new()
         {
             Id = dish.Id,
             Name = dish.Name,
