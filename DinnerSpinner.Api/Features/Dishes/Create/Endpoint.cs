@@ -35,7 +35,7 @@ namespace DinnerSpinner.Api.Features.Dishes.Create
             var entity = new Dish
             {
                 Name = request.Name,
-                Category = category
+                Category = category!
             };
 
             db.Dishes.Add(entity);

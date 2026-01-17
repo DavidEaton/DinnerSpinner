@@ -1,12 +1,14 @@
 ﻿{
-  "https": {
-    "commandName": "Project",
-    "dotnetRunMessages": true,
-    "launchBrowser": true,
-    "launchUrl": "dinnerspinner",
-    "applicationUrl": "https://localhost:7111",
-    "environmentVariables": {
-      "ASPNETCORE_ENVIRONMENT": "Development"
+  "profiles": {
+    "https": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": false,
+      "launchUrl": "dinnerspinner",
+      "applicationUrl": "https://localhost:7111",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
     }
   }
 }
