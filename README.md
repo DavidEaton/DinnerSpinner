@@ -1,5 +1,3 @@
----
-
 # DinnerSpinner
 
 A tiny family app to help plan meals. Keep a list of dishes you can make at home and “spin” to randomly pick what to eat for the next few days (or the week). The project also serves as a hands-on way to learn **FastEndpoints** on .NET.
@@ -12,21 +10,21 @@ A tiny family app to help plan meals. Keep a list of dishes you can make at home
 
 ## Features
 
-- CRUD for dishes (name, category).
+- CRUD for dishes aka courses (name, category i.e. BLT, Lunch).
 - Random “Spin” to pick tonight’s meal.
 - Build a quick multi-day plan by spinning repeatedly.
 - **Planned:** favorites/weights (bias the spinner), weekly planner, export/print, and PWA install/offline.
 
 ## Tech stack
 
-- **.NET 8**, **FastEndpoints**, **FluentValidation**
+- **.NET 10**, **FastEndpoints**, **FluentValidation**
 - **SQLite** (via EF Core) for simple persistence in the API
 - **Blazor WebAssembly** for the UI
 
 ## Getting started
 
 ### Prereqs
-- .NET 8 SDK
+- .NET 10 SDK
 
 ### 1) Run the API
 
