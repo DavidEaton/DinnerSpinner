@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32407.343
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DinnerSpinner.Client", "DinnerSpinner\DinnerSpinner.Client.csproj", "{B64EE782-A564-46A4-AB1E-D0230CC268F8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DinnerSpinner.Client", "DinnerSpinner.Client\DinnerSpinner.Client.csproj", "{B64EE782-A564-46A4-AB1E-D0230CC268F8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DinnerSpinner.Api", "DinnerSpinner.Api\DinnerSpinner.Api.csproj", "{8DA92015-CFD7-4941-AD61-62643CB3B2D3}"
 EndProject
