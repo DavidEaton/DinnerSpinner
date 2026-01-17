@@ -364,3 +364,6 @@ FodyWeavers.xsd
 
 # Launch settings - developer-specific configuration
 **/Properties/launchSettings.json
+
+# REST Client HTTP files - developer-specific requests
+*.http
