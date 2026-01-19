@@ -2,7 +2,7 @@ using FastEndpoints;
 
 namespace DinnerSpinner.Api.Features.HealthCheck
 {
-    internal class Endpoint : EndpointWithoutRequest<HealthCheckResponse>
+    internal class Endpoint : EndpointWithoutRequest<Response>
     {
         public override void Configure()
         {
@@ -13,11 +13,11 @@ namespace DinnerSpinner.Api.Features.HealthCheck
 
         public override async Task HandleAsync(CancellationToken cancellationToken)
         {
-            await Send.OkAsync(new HealthCheckResponse(), cancellationToken);
+            await Send.OkAsync(new Response(), cancellationToken);
         }
     }
 
-    public class HealthCheckResponse
+    public class Response
     {
         public string Status { get; set; } = "Healthy";
         public DateTime Timestamp { get; set; } = DateTime.UtcNow;

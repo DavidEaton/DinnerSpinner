@@ -6,7 +6,8 @@ using static DinnerSpinner.Api.Common.Errors;
 
 namespace DinnerSpinner.Api.Features.Dishes.Create
 {
-    internal class Endpoint(AppDbContext db) : Endpoint<Request, Response>
+    public class Endpoint(AppDbContext db)
+        : Endpoint<Request, Response>
     {
         public override void Configure()
         {
