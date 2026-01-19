@@ -1,8 +1,5 @@
-﻿using CSharpFunctionalExtensions;
-using DinnerSpinner.Api.Data;
+﻿using DinnerSpinner.Api.Data;
 using FastEndpoints;
-using Microsoft.EntityFrameworkCore;
-using static DinnerSpinner.Api.Common.Errors;
 
 namespace DinnerSpinner.Api.Features.Dishes.Create
 {
@@ -16,35 +13,28 @@ namespace DinnerSpinner.Api.Features.Dishes.Create
             AllowAnonymous();
             Summary(s => s.Summary = "Create a new dish");
         }
-        public override async Task<Result<Dish, Error>> HandleAsync(Request request, CancellationToken cancellationToken)
+        public override async Task HandleAsync(Request request, CancellationToken token)
         {
-            var category = await db
-                .Categories
-                .FirstOrDefaultAsync(
-                    category => category.Id == request.CategoryId,
-                    cancellationToken);
-
+            var category = await db.Categories.FindAsync([request.CategoryId], token);
             if (category is null)
             {
-                await Send.NotFoundAsync(cancellationToken);
-                //return Result.Failure<Dish, Error>(new Error(ErrorCode.NotFound, "Category not found"));
+                await Send.NotFoundAsync(token);
+                return;
             }
 
-            var entity = new Dish
+            var dish = new Dish
             {
                 Name = request.Name,
-                Category = category!
+                Category = category
             };
 
-            db.Dishes.Add(entity);
-            await db.SaveChangesAsync(cancellationToken);
+            db.Dishes.Add(dish);
+            await db.SaveChangesAsync(token);
 
             await Send.CreatedAtAsync<Read.GetById.Endpoint>(
-                routeValues: new { id = entity.Id },
-                responseBody: entity.ToCreateResponse(),
-                cancellation: cancellationToken);
-
-            return Result.Success<Dish, Error>(entity);
+                routeValues: new { id = dish.Id },
+                responseBody: dish.ToCreateResponse(),
+                cancellation: token);
         }
     }
 }

@@ -2,24 +2,24 @@
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
 
-namespace DinnerSpinner.Api.Features.Dishes.Read.List
+namespace DinnerSpinner.Api.Features.Categories.Read.List
 {
     public sealed class Endpoint(AppDbContext db)
-        : EndpointWithoutRequest<List<Response>>
+        : EndpointWithoutRequest<List<Response?>>
     {
         public override void Configure()
         {
-            Get("/api/dishes");
+            Get("/api/categories");
             AllowAnonymous();
-            Summary(summary => summary.Summary = "List dishes");
+            Summary(summary => summary.Summary = "List categories");
         }
 
         public override async Task HandleAsync(CancellationToken cancellationToken)
         {
-            var dishes = await db.Dishes
-                .Select(dish => dish.ToListResponse())
+            var categories = await db.Categories
+                .Select(category => category.ToListResponse())
                 .ToListAsync(cancellationToken);
-            await Send.OkAsync(dishes, cancellationToken);
+            await Send.OkAsync(categories, cancellationToken);
         }
     }
 }

@@ -17,31 +17,41 @@ namespace DinnerSpinner.Api.Features.Dishes.Update
         {
             var id = Route<int>("id");
 
-            var dish = await db.Dishes.FirstOrDefaultAsync(d => d.Id == id, cancellationToken);
+            var dish = await db.Dishes
+                .FirstOrDefaultAsync(d => d.Id == id, cancellationToken);
+
             if (dish is null)
             {
                 await Send.NotFoundAsync(cancellationToken);
                 return;
             }
 
+            var categoryId = request.Category.Id;
+
             var categoryExists = await db.Categories
-                .AnyAsync(
-                    category => category.Id == request.Category.Id,
-                    cancellationToken
-                );
+                .AnyAsync(c => c.Id == categoryId, cancellationToken);
+
             if (!categoryExists)
             {
                 await Send.NotFoundAsync(cancellationToken);
                 return;
             }
 
-            dish.Name = request.Name;
-            dish.Category = request.Category;
+            var changed =
+                !string.Equals(dish.Name, request.Name, StringComparison.Ordinal) ||
+                dish.Category.Id != categoryId;
 
-            await db.SaveChangesAsync(cancellationToken);
+            if (changed)
+            {
+                dish.Name = request.Name;
+                dish.Category.Id = categoryId;
+
+                await db.SaveChangesAsync(cancellationToken);
+            }
+
             await db.Entry(dish).Reference(d => d.Category).LoadAsync(cancellationToken);
-
             await Send.OkAsync(dish.ToUpdateResponse(), cancellationToken);
         }
+
     }
 }
