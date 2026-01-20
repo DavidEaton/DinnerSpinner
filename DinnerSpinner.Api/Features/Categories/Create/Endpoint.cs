@@ -20,19 +20,28 @@ namespace DinnerSpinner.Api.Features.Categories.Create
         {
             var name = request.Name.Trim();
 
-            var exists = await db.Categories.AnyAsync(c => c.Name == name, cancellationToken);
+            var exists = await db.Categories.AnyAsync(
+                c => c.Name == name,
+                cancellationToken);
             if (exists)
             {
-                await Send.ErrorAsync(ApiError.Conflict("Category already exists."), cancellationToken);
+                await Send.ErrorAsync(
+                    ApiError.Conflict("Category already exists."),
+                    cancellationToken);
                 return;
             }
 
             var category = new Category { Name = name };
+
             db.Categories.Add(category);
             await db.SaveChangesAsync(cancellationToken);
-            var createResponse = category.ToCreateResponse();
 
-            await Send.ResponseAsync(ApiResponse<Response>.Ok(createResponse), 201, cancellationToken);
+            var response = category.ToCreateResponse();
+
+            await Send.ResponseAsync(
+                ApiResponse<Response>.Ok(response),
+                201,
+                cancellationToken);
         }
     }
 }
