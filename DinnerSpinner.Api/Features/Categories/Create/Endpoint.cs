@@ -1,36 +1,38 @@
-﻿using CSharpFunctionalExtensions;
+﻿using DinnerSpinner.Api.Common;
 using DinnerSpinner.Api.Data;
 using FastEndpoints;
-using static DinnerSpinner.Api.Common.Errors;
+using Microsoft.EntityFrameworkCore;
 
 namespace DinnerSpinner.Api.Features.Categories.Create
 {
     public class Endpoint(AppDbContext db)
-        : Endpoint<Request, Response>
+        : Endpoint<Request, ApiResponse<Response>>
     {
         public override void Configure()
         {
-            Post("/api/categories/create");
+            Post("/api/categories");
             Validator<Validator>();
             AllowAnonymous();
             Summary(s => s.Summary = "Create a new category");
         }
-        public override async Task<Result<Category, Error>> HandleAsync(Request request, CancellationToken cancellationToken)
+
+        public override async Task HandleAsync(Request request, CancellationToken cancellationToken)
         {
-            var entity = new Category
+            var name = request.Name.Trim();
+
+            var exists = await db.Categories.AnyAsync(c => c.Name == name, cancellationToken);
+            if (exists)
             {
-                Name = request.Name,
-            };
+                await Send.ErrorAsync(ApiError.Conflict("Category already exists."), cancellationToken);
+                return;
+            }
 
-            db.Categories.Add(entity);
+            var category = new Category { Name = name };
+            db.Categories.Add(category);
             await db.SaveChangesAsync(cancellationToken);
+            var createResponse = category.ToCreateResponse();
 
-            await Send.CreatedAtAsync<Read.GetById.Endpoint>(
-                routeValues: new { id = entity.Id },
-                responseBody: entity.ToCreateResponse(),
-                cancellation: cancellationToken);
-
-            return Result.Success<Category, Error>(entity);
+            await Send.ResponseAsync(ApiResponse<Response>.Ok(createResponse), 201, cancellationToken);
         }
     }
 }
