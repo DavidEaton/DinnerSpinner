@@ -1,10 +1,10 @@
 # DinnerSpinner
 
-A tiny family app to help plan meals. Keep a list of dishes you can make at home and “spin” to randomly pick what to eat for the next few days (or the week). The project also serves as a hands-on way to learn **FastEndpoints** on .NET.
+A tiny family app to help plan meals. Keep a list of dishes you can make at home and “spin” to randomly pick what to eat for the next few days (or the week). The project also serves as a hands-on way to get familiar with **FastEndpoints**.
 
 ## Solution layout
 
-- **DinnerSpinner.Api** — ASP.NET Core 8 Web API built with **FastEndpoints**.
+- **DinnerSpinner.Api** — ASP.NET Core 10 Web API built with **FastEndpoints**.
 - **DinnerSpinner.Client** — **Blazor WebAssembly** front end (Razor components) that calls the API.
 - *(Optional later: a Shared project for DTOs if needed.)*
 
@@ -74,4 +74,4 @@ A client-side “spin” is just getting the list and picking a random item. A f
 * 7-day planner view
 * PWA: offline + “Add to Home Screen”
 * Export/print a shopping list from the plan
-
+* Family membership; live voting (websockets)
