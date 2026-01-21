@@ -1,75 +1,186 @@
 # DinnerSpinner
 
-A tiny family app to help plan meals. Keep a list of dishes you can make at home and “spin” to randomly pick what to eat for the next few days (or the week). The project also serves as a hands-on way to get familiar with **FastEndpoints**.
+DinnerSpinner is a small, end-to-end meal-planning application built with **ASP.NET Core** and **Blazor WebAssembly**.It helps households keep a list of home-cooked dishes and randomly “spin” to decide what to eat for the next meal or several days.
+
+While intentionally modest in scope, this project is designed as a **portfolio showcase** demonstrating clean API design, vertical slice architecture, and pragmatic decision-making around evolving features.
+
+* * *
+
+## Goals & design focus
+
+This project emphasizes **clarity and correctness over scale**. The primary goals are to:
+
+* Practice **vertical slice architecture** using FastEndpoints (REPR pattern)
+  
+* Keep API endpoints cohesive, explicit, and easy to reason about
+  
+* Apply structured validation and consistent error handling
+  
+* Cleanly separate API and client responsibilities
+  
+* Favor simple persistence and incremental evolution over premature abstraction
+  
+
+DinnerSpinner reflects how I approach real-world systems: small, deliberate steps with room to grow.
+
+* * *
 
 ## Solution layout
 
-- **DinnerSpinner.Api** — ASP.NET Core 10 Web API built with **FastEndpoints**.
-- **DinnerSpinner.Client** — **Blazor WebAssembly** front end (Razor components) that calls the API.
+* **DinnerSpinner.Api**ASP.NET Core 10 Web API built with **FastEndpoints**, using request/response DTOs and FluentValidation.
+  
+* **DinnerSpinner.Client****Blazor WebAssembly** front end (Razor components) that consumes the API.
+  
+
+The API and client are developed and run independently to reinforce separation of concerns.
+
+* * *
 
 ## Features
 
-- CRUD for dishes aka courses (name, category i.e. BLT, Lunch).
-- Random “Spin” to pick tonight’s meal.
-- Build a quick multi-day plan by spinning repeatedly.
-- **Planned:** Sides, favorites/weights (bias the spinner), weekly planner, export/print, and PWA install/offline.
+* CRUD operations for dishes (**name** + *category* such as ***Eggs** Breakfast, **BLT** Lunch, **Spaghetti** Dinner*)
+  
+* Random “Spin” to select a meal
+  
+* Build a multi-day meal plan by spinning repeatedly
+  
+* SQLite persistence via Entity Framework Core
+  
+
+## Planned features
+
+* Side dishes
+  
+* Favorites and weighted spins
+  
+* Weekly planner view
+  
+* Export / print meal plans and shopping lists
+  
+* Progressive Web App (offline support, installable)
+  
+* Family membership and live voting (WebSockets)
+  
+
+* * *
 
 ## Tech stack
 
-- **.NET 10**, **FastEndpoints**, **FluentValidation**
-- **SQLite** (via Entity Framework Core) data persistence
-- **Blazor WebAssembly** UI
+* **.NET 10**
+  
+* **FastEndpoints**
+  
+* **FluentValidation**
+  
+* **Entity Framework Core**
+  
+* **SQLite**
+  
+* **Blazor WebAssembly**
+  
+
+* * *
 
 ## Getting started
 
-### Prereqs
-- .NET 10 SDK
+### Prerequisites
+
+* .NET 10 SDK
+
+* * *
 
 ### 1) Run the API
 
-```bash
-git clone https://github.com/DavidEaton/DinnerSpinner.git
-cd DinnerSpinner/DinnerSpinner.Api
-dotnet restore
-dotnet run
-````
+`git clone https://github.com/DavidEaton/DinnerSpinner.git cd DinnerSpinner/DinnerSpinner.Apidotnet restoredotnet run`
 
-* The API will start on a local port (shown in the console). Swagger UI is enabled for easy testing.
-* A local SQLite DB is used (connection string in `appsettings*.json`). The DB file is created on first run if it doesn’t exist.
+Notes:
 
-### 2) Run the Blazor WASM client
+* The API starts on a local port shown in the console.
+  
+* Swagger UI is enabled for discovery and testing.
+  
+* SQLite is used for local persistence.
+  
+* The database file is created automatically on first run.
+  
 
-```bash
-cd ../DinnerSpinner.Client
-dotnet restore
-dotnet run
-```
+* * *
 
-> If the client calls the API on a different port, set the API base URL in the client (e.g., a config/appsettings or a constant in `Program.cs`). Enable CORS in the API if you’re serving them on different origins during dev.
+### 2) Run the Blazor WebAssembly client
 
-## API (high level)
+`cd ../DinnerSpinner.Clientdotnet restoredotnet run`
 
-Typical REST-ish endpoints (discover via Swagger):
+If the client and API run on different ports during development:
+
+* Configure the API base URL in the client (e.g., `Program.cs`)
+  
+* Enable CORS in the API as needed
+  
+
+* * *
+
+## API overview
+
+The API follows a REST-style design, discoverable via Swagger.
+
+Typical endpoints include:
 
 * `GET /dishes` — list all dishes
-* `POST /dishes` — add a dish
-* `GET /dishes/{id}` — fetch one
-* `PUT /dishes/{id}` — update
-* `DELETE /dishes/{id}` — remove
+  
+* `POST /dishes` — create a dish
+  
+* `GET /dishes/{id}` — retrieve a single dish
+  
+* `PUT /dishes/{id}` — update a dish
+  
+* `DELETE /dishes/{id}` — delete a dish
+  
 
-A client-side “spin” gets the list and picks a random item. 
+### API design notes
 
-## Development notes
+* Endpoints follow the **REPR** pattern (Request → Endpoint → Response)
+  
+* Validation is handled via **FluentValidation**
+  
+* Conflicts (e.g., duplicate dish names within a category) are explicitly detected
+  
+* Responses use a consistent envelope to simplify client handling
+  
 
-* Endpoints follow **REPR** (Request → Endpoint → Response) for small, testable vertical slices.
-* Validate inputs with **FluentValidation**.
-* Keep entities minimal now; add `IsFavorite`, `Weight`, `Notes`, etc., as features grow.
+The “spin” operation currently happens client-side by requesting dishes and selecting a random item. This may later move server-side as rules grow more complex.
 
-## Roadmap
+* * *
 
-* Sides
-* Weighted spins (favor favorites)
+### Development notes
+
+* Endpoints are implemented as small, focused vertical slices
+  
+* Business rules live close to their endpoints
+  
+* Entities are intentionally minimal and expected to evolve
+  
+* The codebase favors readability and explicit behavior over clever abstractions
+  
+
+* * *
+
+### Roadmap
+
+* Side dishes
+  
+* Weighted spins (bias toward favorites)
+  
 * 7-day planner view
-* PWA: offline + “Add to Home Screen”
-* Export/print a shopping list from the plan
-* Family membership; live voting (websockets)
+  
+* PWA support (offline + install)
+  
+* Exportable shopping lists
+  
+* Family accounts and live meal voting
+  
+
+* * *
+
+## Why this project exists
+
+DinnerSpinner exists both as a useful household tool and as a practical demonstration of how I design, structure, and grow a backend-driven application. It reflects how I approach production systems: start small, design intentionally, and leave room for change.
