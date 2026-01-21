@@ -6,20 +6,19 @@ A tiny family app to help plan meals. Keep a list of dishes you can make at home
 
 - **DinnerSpinner.Api** — ASP.NET Core 10 Web API built with **FastEndpoints**.
 - **DinnerSpinner.Client** — **Blazor WebAssembly** front end (Razor components) that calls the API.
-- *(Optional later: a Shared project for DTOs if needed.)*
 
 ## Features
 
 - CRUD for dishes aka courses (name, category i.e. BLT, Lunch).
 - Random “Spin” to pick tonight’s meal.
 - Build a quick multi-day plan by spinning repeatedly.
-- **Planned:** favorites/weights (bias the spinner), weekly planner, export/print, and PWA install/offline.
+- **Planned:** Sides, favorites/weights (bias the spinner), weekly planner, export/print, and PWA install/offline.
 
 ## Tech stack
 
 - **.NET 10**, **FastEndpoints**, **FluentValidation**
-- **SQLite** (via EF Core) for simple persistence in the API
-- **Blazor WebAssembly** for the UI
+- **SQLite** (via Entity Framework Core) data persistence
+- **Blazor WebAssembly** UI
 
 ## Getting started
 
@@ -40,8 +39,6 @@ dotnet run
 
 ### 2) Run the Blazor WASM client
 
-Open a new terminal:
-
 ```bash
 cd ../DinnerSpinner.Client
 dotnet restore
@@ -60,7 +57,7 @@ Typical REST-ish endpoints (discover via Swagger):
 * `PUT /dishes/{id}` — update
 * `DELETE /dishes/{id}` — remove
 
-A client-side “spin” is just getting the list and picking a random item. A future server endpoint like `POST /spin` could return a weighted result.
+A client-side “spin” gets the list and picks a random item. 
 
 ## Development notes
 
@@ -70,6 +67,7 @@ A client-side “spin” is just getting the list and picking a random item. A f
 
 ## Roadmap
 
+* Sides
 * Weighted spins (favor favorites)
 * 7-day planner view
 * PWA: offline + “Add to Home Screen”
