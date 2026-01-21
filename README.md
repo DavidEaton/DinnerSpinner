@@ -27,9 +27,9 @@ DinnerSpinner reflects how I approach real-world systems: small, deliberate step
 
 ## Solution layout
 
-* **DinnerSpinner.Api**ASP.NET Core 10 Web API built with **FastEndpoints**, using request/response DTOs and FluentValidation.
+* **DinnerSpinner.Api** ASP.NET Core 10 Web API built with **FastEndpoints**, using request/response DTOs and FluentValidation.
   
-* **DinnerSpinner.Client****Blazor WebAssembly** front end (Razor components) that consumes the API.
+* **DinnerSpinner.Client Blazor WebAssembly** front end (Razor components) that consumes the API.
   
 
 The API and client are developed and run independently to reinforce separation of concerns.
@@ -91,7 +91,10 @@ The API and client are developed and run independently to reinforce separation o
 
 ### 1) Run the API
 
-`git clone https://github.com/DavidEaton/DinnerSpinner.git cd DinnerSpinner/DinnerSpinner.Apidotnet restoredotnet run`
+`git clone https://github.com/DavidEaton/DinnerSpinner.git`
+`cd DinnerSpinner/DinnerSpinner.Api`
+`dotnet restore`
+`dotnet run`
 
 Notes:
 
@@ -108,7 +111,9 @@ Notes:
 
 ### 2) Run the Blazor WebAssembly client
 
-`cd ../DinnerSpinner.Clientdotnet restoredotnet run`
+`cd ../DinnerSpinner.Client`
+`dotnet restore`
+`dotnet run`
 
 If the client and API run on different ports during development:
 
