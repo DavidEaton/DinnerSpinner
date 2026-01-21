@@ -91,10 +91,12 @@ The API and client are developed and run independently to reinforce separation o
 
 ### 1) Run the API
 
-`git clone https://github.com/DavidEaton/DinnerSpinner.git`
-`cd DinnerSpinner/DinnerSpinner.Api`
-`dotnet restore`
-`dotnet run`
+```
+git clone https://github.com/DavidEaton/DinnerSpinner.git
+cd DinnerSpinner/DinnerSpinner.Api
+dotnet restore
+dotnet run
+```
 
 Notes:
 
@@ -111,9 +113,11 @@ Notes:
 
 ### 2) Run the Blazor WebAssembly client
 
-`cd ../DinnerSpinner.Client`
-`dotnet restore`
-`dotnet run`
+```
+cd ../DinnerSpinner.Client
+dotnet restore
+dotnet run
+```
 
 If the client and API run on different ports during development:
 
