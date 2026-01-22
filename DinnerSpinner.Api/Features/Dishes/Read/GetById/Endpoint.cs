@@ -14,7 +14,6 @@ namespace DinnerSpinner.Api.Features.Dishes.Read.GetById
             Summary(s => s.Summary = "Get a dish by id");
         }
 
-
         public override async Task HandleAsync(Request request, CancellationToken cancellationToken)
         {
             var dish = await db.Dishes
@@ -27,14 +26,7 @@ namespace DinnerSpinner.Api.Features.Dishes.Read.GetById
                 return;
             }
 
-            var response = dish.ToGetByIdResponse();
-            if (response is null)
-            {
-                await Send.NotFoundAsync(cancellationToken);
-                return;
-            }
-
-            await Send.OkAsync(response, cancellationToken);
+            await Send.OkAsync(dish.ToGetByIdResponse(), cancellationToken);
         }
     }
 

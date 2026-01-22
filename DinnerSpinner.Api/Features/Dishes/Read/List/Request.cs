@@ -1,7 +1,0 @@
-﻿namespace DinnerSpinner.Api.Features.Dishes.Read.List
-{
-    public sealed class Request
-    {
-        public int Id { get; init; }
-    }
-}
