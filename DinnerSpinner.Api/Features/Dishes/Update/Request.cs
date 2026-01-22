@@ -1,11 +1,8 @@
-﻿using DinnerSpinner.Api.Features.Categories;
-
-namespace DinnerSpinner.Api.Features.Dishes.Update
+﻿namespace DinnerSpinner.Api.Features.Dishes.Update
 {
-    public class Request
+    public sealed class Request
     {
         public string Name { get; init; } = string.Empty;
-        public Category Category { get; init; } = new();
-
+        public int CategoryId { get; init; }
     }
 }

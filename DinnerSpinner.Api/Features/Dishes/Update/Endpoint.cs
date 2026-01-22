@@ -19,6 +19,8 @@ public sealed class Endpoint(AppDbContext db)
     public override async Task HandleAsync(Request request, CancellationToken cancellationToken)
     {
         var id = Route<int>("id");
+        var name = request.Name.Trim();
+        var categoryId = request.CategoryId;
 
         var dish = await db.Dishes
             .Include(d => d.Category)
@@ -30,24 +32,36 @@ public sealed class Endpoint(AppDbContext db)
             return;
         }
 
-        var categoryId = request.Category.Id;
-
         var category = await db.Categories
             .FirstOrDefaultAsync(c => c.Id == categoryId, cancellationToken);
 
         if (category is null)
         {
-            await Send.NotFoundAsync("Category of dish not found.", cancellationToken);
+            await Send.NotFoundAsync("Category not found.", cancellationToken);
+            return;
+        }
+
+        var duplicateExists = await db.Dishes.AnyAsync(
+            d => d.Id != id &&
+                 d.Name == name &&
+                 d.Category.Id == categoryId,
+            cancellationToken);
+
+        if (duplicateExists)
+        {
+            await Send.ConflictAsync(
+                "A dish with the same name already exists in this category.",
+                cancellationToken);
             return;
         }
 
         var changed =
-            !string.Equals(dish.Name, request.Name, StringComparison.Ordinal) ||
+            !string.Equals(dish.Name, name, StringComparison.Ordinal) ||
             dish.Category.Id != categoryId;
 
         if (changed)
         {
-            dish.Name = request.Name.Trim();
+            dish.Name = name;
             dish.Category = category;
 
             await db.SaveChangesAsync(cancellationToken);

@@ -14,8 +14,8 @@ namespace DinnerSpinner.Api.Features.Dishes.Update
                 .Length(2, 1000)
                 .WithMessage("Dish Name is too long");
 
-            RuleFor(dish => dish.Category)
-                .NotEmpty()
+            RuleFor(dish => dish.CategoryId)
+                .GreaterThan(0)
                 .WithMessage("Please select a category");
         }
     }

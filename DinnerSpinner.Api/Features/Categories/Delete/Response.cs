@@ -1,4 +1,4 @@
-﻿namespace DinnerSpinner.Api.Features.Dishes.Delete
+﻿namespace DinnerSpinner.Api.Features.Categories.Delete
 {
     public sealed class Response
     {
