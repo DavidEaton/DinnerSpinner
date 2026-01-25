@@ -1,4 +1,6 @@
-﻿namespace DinnerSpinner.Api.Features.Categories
+﻿using DinnerSpinner.Domain.Features.Categories;
+
+namespace DinnerSpinner.Api.Features.Categories
 {
     internal static class Mappings
     {

@@ -1,5 +1,6 @@
 ﻿using DinnerSpinner.Api.Common;
 using DinnerSpinner.Api.Data;
+using DinnerSpinner.Domain.Features.Categories;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
 

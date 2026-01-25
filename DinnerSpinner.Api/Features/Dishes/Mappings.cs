@@ -1,4 +1,6 @@
-﻿namespace DinnerSpinner.Api.Features.Dishes
+﻿using DinnerSpinner.Domain.Features.Dishes;
+
+namespace DinnerSpinner.Api.Features.Dishes
 {
     internal static class Mappings
     {
