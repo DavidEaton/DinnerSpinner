@@ -164,9 +164,9 @@ The “spin” operation currently happens client-side by requesting dishes and 
 
 * Endpoints are implemented as small, focused vertical slices
   
-* Business rules live close to their endpoints
+* Business rules lives in domain entities and value objects
   
-* Entities are intentionally minimal and expected to evolve
+* Entities and value objects represent our solution domain model 
   
 * The codebase favors readability and explicit behavior over clever abstractions
   
@@ -185,7 +185,9 @@ The “spin” operation currently happens client-side by requesting dishes and 
   
 * Exportable shopping lists
   
-* Family accounts and live meal voting
+* Houshold accounts
+
+* Live voting
   
 
 * * *
