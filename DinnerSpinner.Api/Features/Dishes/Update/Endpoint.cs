@@ -19,8 +19,9 @@ public sealed class Endpoint(AppDbContext db)
     public override async Task HandleAsync(Request request, CancellationToken cancellationToken)
     {
         var id = Route<int>("id");
-        var name = request.Name.Trim();
-        var categoryId = request.CategoryId;
+        var name = request.Dish.Name.Trim();
+        var categoryId = request.Dish.CategoryId;
+        var CategoryName = request.Dish.CategoryName;
 
         var dish = await db.Dishes
             .Include(d => d.Category)

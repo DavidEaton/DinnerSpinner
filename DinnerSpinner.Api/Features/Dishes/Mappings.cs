@@ -2,7 +2,7 @@
 {
     internal static class Mappings
     {
-        private static RequestResponse ToDishRequestResponse(this Dish dish) => new()
+        private static Contract ToContract(this Dish dish) => new()
         {
             Id = dish.Id,
             Name = dish.Name,
@@ -12,22 +12,22 @@
 
         public static Create.Response ToCreateResponse(this Dish dish) => new()
         {
-            Dish = dish.ToDishRequestResponse()
+            Dish = dish.ToContract()
         };
 
         public static Update.Response ToUpdateResponse(this Dish dish) => new()
         {
-            Dish = dish.ToDishRequestResponse()
+            Dish = dish.ToContract()
         };
 
         public static Read.GetById.Response ToGetByIdResponse(this Dish dish) => new()
         {
-            Dish = dish.ToDishRequestResponse()
+            Dish = dish.ToContract()
         };
 
         public static Read.List.Response ToListResponse(this Dish dish) => new()
         {
-            Dish = dish.ToDishRequestResponse()
+            Dish = dish.ToContract()
         };
     }
 }

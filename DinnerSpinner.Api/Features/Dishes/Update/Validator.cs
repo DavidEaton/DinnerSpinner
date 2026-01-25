@@ -6,7 +6,7 @@ namespace DinnerSpinner.Api.Features.Dishes.Update
     {
         public Validator()
         {
-            RuleFor(dish => dish.Name)
+            RuleFor(request => request.Dish.Name)
                 .NotEmpty()
                 .WithMessage("Please enter a dish Name")
                 .MinimumLength(2)
@@ -14,7 +14,7 @@ namespace DinnerSpinner.Api.Features.Dishes.Update
                 .Length(2, 1000)
                 .WithMessage("Dish Name is too long");
 
-            RuleFor(dish => dish.CategoryId)
+            RuleFor(request => request.Dish.CategoryId)
                 .GreaterThan(0)
                 .WithMessage("Please select a category");
         }

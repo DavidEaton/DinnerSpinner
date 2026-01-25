@@ -2,6 +2,6 @@
 {
     public sealed class Response
     {
-        public RequestResponse Dish { get; init; } = new();
+        public Contract Dish { get; init; } = new();
     }
 }

@@ -14,7 +14,7 @@ namespace DinnerSpinner.Api.Features.Dishes.Delete
         }
         public override async Task HandleAsync(Request request, CancellationToken cancellationToken)
         {
-            var dish = await db.Dishes.FindAsync(new object[] { request.Id }, cancellationToken);
+            var dish = await db.Dishes.FindAsync([request.Id], cancellationToken);
 
             if (dish is null)
             {

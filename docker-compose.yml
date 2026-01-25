@@ -1,0 +1,37 @@
+services:
+  claude:
+    build:
+      context: .
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
+    image: local/claude-code:latest
+    user: "${UID:-1000}:${GID:-1000}"
+    working_dir: /workspace
+    stdin_open: true
+    tty: true
+    environment:
+      - HOME=/home/claude
+    volumes:
+      # Repo mounted read-only by default (blast-radius reduction)
+      - ./:/workspace:ro
+      # Persist Claude auth/config/state separately from your repo
+      - claude_home:/home/claude
+
+  # Explicit write-enabled variant you must opt into.
+  claude-rw:
+    profiles: ["rw"]
+    image: local/claude-code:latest
+    user: "${UID:-1000}:${GID:-1000}"
+    working_dir: /workspace
+    stdin_open: true
+    tty: true
+    environment:
+      - HOME=/home/claude
+    volumes:
+      # Repo mounted read-write only when you choose the "rw" profile
+      - ./:/workspace
+      - claude_home:/home/claude
+
+volumes:
+  claude_home:

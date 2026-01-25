@@ -367,3 +367,6 @@ FodyWeavers.xsd
 
 # REST Client HTTP files - developer-specific requests
 *.http
+
+# Local Docker Compose overrides (do not commit)
+.env

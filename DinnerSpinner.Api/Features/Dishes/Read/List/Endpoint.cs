@@ -17,6 +17,8 @@ namespace DinnerSpinner.Api.Features.Dishes.Read.List
         public override async Task HandleAsync(CancellationToken cancellationToken)
         {
             var dishes = await db.Dishes
+                .Include(dish => dish.Category)
+                .AsNoTracking()
                 .Select(dish => dish.ToListResponse())
                 .ToListAsync(cancellationToken);
             await Send.OkAsync(dishes, cancellationToken);
