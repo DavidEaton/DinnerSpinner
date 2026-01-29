@@ -1,7 +1,6 @@
-﻿namespace DinnerSpinner.Api.Features.Dishes.Update
+﻿namespace DinnerSpinner.Api.Features.Dishes.Update;
+
+public sealed class Request
 {
-    public sealed class Request
-    {
-        public Contract Dish { get; init; } = new();
-    }
+    public Contract Dish { get; init; } = new();
 }

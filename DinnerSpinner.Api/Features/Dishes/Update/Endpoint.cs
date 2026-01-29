@@ -1,5 +1,6 @@
 ﻿using DinnerSpinner.Api.Common;
 using DinnerSpinner.Api.Data;
+using DinnerSpinner.Domain.Features.Common;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
 
@@ -44,7 +45,7 @@ public sealed class Endpoint(AppDbContext db)
 
         var duplicateExists = await db.Dishes.AnyAsync(
             d => d.Id != id &&
-                 d.Name == name &&
+                 d.Name.Value == name &&
                  d.Category.Id == categoryId,
             cancellationToken);
 
@@ -57,13 +58,13 @@ public sealed class Endpoint(AppDbContext db)
         }
 
         var changed =
-            !string.Equals(dish.Name, name, StringComparison.Ordinal) ||
+            !string.Equals(dish.Name.Value, name, StringComparison.Ordinal) ||
             dish.Category.Id != categoryId;
 
         if (changed)
         {
-            dish.Name = name;
-            dish.Category = category;
+            dish.Rename(Name.Create(name).Value);
+            dish.ChangeCategory(category);
 
             await db.SaveChangesAsync(cancellationToken);
         }

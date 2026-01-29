@@ -1,7 +1,6 @@
-﻿namespace DinnerSpinner.Api.Features.Dishes.Create
+﻿namespace DinnerSpinner.Api.Features.Dishes.Create;
+
+public sealed class Response
 {
-    public sealed class Response
-    {
-        public Contract Dish { get; init; } = new();
-    }
+    public Contract Dish { get; init; } = new();
 }

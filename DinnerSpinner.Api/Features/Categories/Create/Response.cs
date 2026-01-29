@@ -1,8 +1,6 @@
-﻿namespace DinnerSpinner.Api.Features.Categories.Create
+﻿namespace DinnerSpinner.Api.Features.Categories.Create;
+
+public sealed class Response : IResponse
 {
-    public sealed class Response
-    {
-        public int Id { get; init; }
-        public string Name { get; init; } = string.Empty;
-    }
+    public Contract Category { get; init; } = new();
 }

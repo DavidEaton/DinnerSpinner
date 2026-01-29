@@ -1,6 +1,6 @@
-﻿namespace DinnerSpinner.Api.Features.Categories.Update;
+namespace DinnerSpinner.Api.Features.Categories;
 
-public sealed class Request
+public sealed class Contract
 {
     public int Id { get; init; }
     public string Name { get; init; } = string.Empty;

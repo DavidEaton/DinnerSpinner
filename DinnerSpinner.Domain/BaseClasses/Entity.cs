@@ -2,8 +2,8 @@ namespace DinnerSpinner.Domain.BaseClasses;
 
 public abstract class Entity
 {
-    public virtual long Id { get; protected set; }
-    public override bool Equals(object obj)
+    public virtual int Id { get; protected set; }
+    public override bool Equals(object? obj)
     {
         if (obj is not Entity other)
             return false;
@@ -20,9 +20,9 @@ public abstract class Entity
         return Id == other.Id;
     }
 
-    public static bool operator ==(Entity a, Entity b)
+    public static bool operator ==(Entity? a, Entity? b)
     {
-        if (a is null && b is null)
+        if (ReferenceEquals(a, b))
             return true;
 
         if (a is null || b is null)
@@ -31,12 +31,7 @@ public abstract class Entity
         return a.Equals(b);
     }
 
-    public static bool operator !=(Entity a, Entity b)
-    {
-        return !(a == b);
-    }
+    public static bool operator !=(Entity? a, Entity? b) => !(a == b);
     public override int GetHashCode()
-    {
-        return (GetType().ToString() + Id).GetHashCode();
-    }
+        => (GetType().ToString() + Id).GetHashCode();
 }

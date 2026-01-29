@@ -1,25 +1,24 @@
 using FastEndpoints;
 
-namespace DinnerSpinner.Api.Features.HealthCheck
+namespace DinnerSpinner.Api.Features.HealthCheck;
+
+internal class Endpoint : EndpointWithoutRequest<Response>
 {
-    internal class Endpoint : EndpointWithoutRequest<Response>
+    public override void Configure()
     {
-        public override void Configure()
-        {
-            Get("/api/health");
-            AllowAnonymous();
-            Summary(s => s.Summary = "Health check endpoint");
-        }
-
-        public override async Task HandleAsync(CancellationToken cancellationToken)
-        {
-            await Send.OkAsync(new Response(), cancellationToken);
-        }
+        Get("/api/health");
+        AllowAnonymous();
+        Summary(s => s.Summary = "Health check endpoint");
     }
 
-    public class Response
+    public override async Task HandleAsync(CancellationToken cancellationToken)
     {
-        public string Status { get; set; } = "Healthy";
-        public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+        await Send.OkAsync(new Response(), cancellationToken);
     }
+}
+
+public class Response
+{
+    public string Status { get; set; } = "Healthy";
+    public DateTime Timestamp { get; set; } = DateTime.UtcNow;
 }

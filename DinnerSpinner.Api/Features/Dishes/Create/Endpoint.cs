@@ -1,5 +1,6 @@
 ﻿using DinnerSpinner.Api.Common;
 using DinnerSpinner.Api.Data;
+using DinnerSpinner.Domain.Features.Common;
 using DinnerSpinner.Domain.Features.Dishes;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
@@ -30,7 +31,7 @@ namespace DinnerSpinner.Api.Features.Dishes.Create
             }
 
             var exists = await db.Dishes.AnyAsync(
-                d => d.Name == name && d.Category.Id == categoryId,
+                d => d.Name.Value == name && d.Category.Id == categoryId,
                 cancellationToken);
 
             if (exists)
@@ -41,17 +42,27 @@ namespace DinnerSpinner.Api.Features.Dishes.Create
                 return;
             }
 
-            var dish = new Dish
+            var nameResult = Name.Create(name);
+            
+            if (nameResult.IsFailure)
             {
-                Name = name,
-                Category = category
-            };
+                await Send.ValidationAsync(nameResult.Error, cancellationToken);
+                return;
+            }
 
-            db.Dishes.Add(dish);
+            var dishResult = Dish.Create(nameResult.Value, category);
+
+            if (dishResult.IsFailure)
+            {
+                await Send.ValidationAsync(dishResult.Error, cancellationToken);
+                return;
+            }
+
+            db.Dishes.Add(dishResult.Value);
             await db.SaveChangesAsync(cancellationToken);
 
             await Send.CreatedAsync(
-                dish.ToCreateResponse(),
+                dishResult.Value.ToCreateResponse(),
                 cancellationToken);
         }
     }

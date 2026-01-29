@@ -1,7 +1,6 @@
-﻿namespace DinnerSpinner.Api.Features.Categories.Delete
+﻿namespace DinnerSpinner.Api.Features.Categories.Delete;
+
+public sealed class Request
 {
-    public sealed class Request
-    {
-        public int Id { get; init; }
-    }
+    public int Id { get; init; }
 }
