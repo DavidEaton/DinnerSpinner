@@ -19,15 +19,13 @@ public class Dish : Entity
 
     public static Result<Dish> Create(Name name, Category category)
     {
-        {
-            if (name is null)
-                return Result.Failure<Dish>("Name is required.");
+        if (name is null)
+            return Result.Failure<Dish>("Name is required.");
 
-            if (category is null)
-                return Result.Failure<Dish>("Category is required.");
+        if (category is null)
+            return Result.Failure<Dish>("Category is required.");
 
-            return Result.Success(new Dish(name, category));
-        }
+        return Result.Success(new Dish(name, category));
     }
 
     public Result Rename(Name newName)

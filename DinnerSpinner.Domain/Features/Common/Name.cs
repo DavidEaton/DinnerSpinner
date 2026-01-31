@@ -1,9 +1,8 @@
 using CSharpFunctionalExtensions;
-using DinnerSpinner.Domain.BaseClasses;
 
 namespace DinnerSpinner.Domain.Features.Common;
 
-public class Name : AppValueObject
+public sealed record Name
 {
     public const int MinimumLength = 2;
     public const int MaximumLength = 255;
@@ -13,21 +12,17 @@ public class Name : AppValueObject
 
     public static readonly string RequiredMessage = "Name is required";
 
-    private Name(string value) => Value = value;
+    private readonly string _value = null!;
+    public string Value => _value;
 
-    public string Value { get; private set; } = null!;
+    private Name(string value) => _value = value;
 
-    public static Result<Name> Create(string name) => CreateCore(name);
-
-    // // If you still want this for semantic intent, keep it, but delegate.
-    // public static Result<Name> NewName(string newName) => CreateCore(newName);
-
-    private static Result<Name> CreateCore(string? raw)
+    public static Result<Name> Create(string? name)
     {
-        if (string.IsNullOrWhiteSpace(raw))
+        if (string.IsNullOrWhiteSpace(name))
             return Result.Failure<Name>(RequiredMessage);
 
-        var trimmed = raw.Trim();
+        var trimmed = name.Trim();
 
         if (trimmed.Length is < MinimumLength or > MaximumLength)
             return Result.Failure<Name>(InvalidLengthMessage);
@@ -37,11 +32,6 @@ public class Name : AppValueObject
 
     public override string ToString() => Value;
 
-    protected override IEnumerable<IComparable> GetEqualityComponents()
-    {
-        yield return Value;
-    }
-
     // Entity Framework requires an empty constructor
-    protected Name() { }
+    private Name() { }
 }

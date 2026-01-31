@@ -13,21 +13,27 @@ public class Category : Entity
         Name = name;
     }
 
-    public static Result<Category> Create(Name name)
+    public static Result<Category> Create(string name)
     {
-        if (name is null)
-            return Result.Failure<Category>($"Name is required");
+        var nameResult = Name.Create(name);
+        if (nameResult.IsFailure)
+        {
+            return Result.Failure<Category>(nameResult.Error);
+        }
 
-        return Result.Success(new Category(name));
+        return Result.Success(new Category(nameResult.Value));
     }
 
-    public Result Rename(Name newName)
-    {
-        if (newName is null)
-            return Result.Failure("Name is required.");
 
-        Name = newName;
-        return Result.Success();
+    public Result Rename(string newName)
+    {
+        var nameResult = Name.Create(newName);
+        if (nameResult.IsFailure)
+        {
+            return Result.Failure<Category>(nameResult.Error);
+        }
+
+        return Result.Success(new Category(nameResult.Value));
     }
 
     public override string ToString()

@@ -1,6 +1,5 @@
 ﻿using DinnerSpinner.Api.Common;
 using DinnerSpinner.Api.Data;
-using DinnerSpinner.Domain.Features.Common;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
 
@@ -48,7 +47,7 @@ public sealed class Endpoint(AppDbContext db)
 
         if (changed)
         {
-            category.Rename(Name.Create(name).Value);
+            category.Rename(name);
             await db.SaveChangesAsync(cancellationToken);
         }
         
