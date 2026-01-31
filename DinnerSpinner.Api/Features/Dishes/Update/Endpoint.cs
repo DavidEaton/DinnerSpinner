@@ -24,8 +24,13 @@ public sealed class Endpoint(AppDbContext db)
         var categoryId = request.Dish.CategoryId;
         var CategoryName = request.Dish.CategoryName;
 
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            await Send.ValidationAsync("Dish name is required.", cancellationToken);
+            return;
+        }
+
         var dish = await db.Dishes
-            .Include(d => d.Category)
             .FirstOrDefaultAsync(d => d.Id == id, cancellationToken);
 
         if (dish is null)
@@ -57,18 +62,23 @@ public sealed class Endpoint(AppDbContext db)
             return;
         }
 
-        var changed =
-            !string.Equals(dish.Name.Value, name, StringComparison.Ordinal) ||
-            dish.Category.Id != categoryId;
+        var nameChanged =
+            !string.Equals(dish.Name.Value, name, StringComparison.Ordinal);
 
-        if (changed)
+        var categoryChanged = dish.Category.Id != categoryId;
+
+        if (nameChanged)
         {
-            dish.Rename(Name.Create(name).Value);
-            dish.ChangeCategory(category);
-
-            await db.SaveChangesAsync(cancellationToken);
+            var newName = Name.Create(name).Value;
+            dish.Rename(newName);
         }
 
+        if (categoryChanged)
+        {
+            dish.ChangeCategory(category);
+        }
+
+        await db.SaveChangesAsync(cancellationToken);
         await Send.OkAsync(dish.ToUpdateResponse(), cancellationToken);
     }
 }

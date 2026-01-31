@@ -17,7 +17,11 @@ This project uses **full commit messages** consisting of a **title** and an opti
 
 **Examples**
 
-`Introduce explicit Dish contract and compose dish endpoint responsesFix EF relationship update in dishes update endpointRemove obsolete dish read response contracts`
+`Introduce explicit Dish contract and compose dish endpoint responses`
+
+`Fix EF relationship in dishes update endpoint`
+
+`Remove obsolete dish read response contracts`
 
 ### Commit body (required for non-trivial changes)
 

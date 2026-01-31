@@ -22,8 +22,8 @@ namespace DinnerSpinner.Api.Features.Dishes.Create
         {
             var name = request.Name.Trim();
             var categoryId = request.CategoryId;
-
             var category = await db.Categories.FindAsync([categoryId], cancellationToken);
+            
             if (category is null)
             {
                 await Send.NotFoundAsync("Category not found.", cancellationToken);

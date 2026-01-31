@@ -6,7 +6,7 @@ namespace DinnerSpinner.Domain.Features.Categories;
 
 public class Category : Entity
 {
-    public Name Name { get; private set; }
+    public Name Name { get; private set; } = null!;
 
     private Category(Name name)
     {
@@ -36,8 +36,5 @@ public class Category : Entity
     }
 
     // Entity Framework requires an empty constructor
-    protected Category()    
-    {
-        Name = null!;
-    }
+    protected Category() { }
 }

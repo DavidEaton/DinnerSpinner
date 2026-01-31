@@ -1,6 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 
-namespace Menominee.Domain.ValueObjects;
+namespace DinnerSpinner.Domain.BaseClasses;
 
 public abstract class AppValueObject : ValueObject
 {

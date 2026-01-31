@@ -1,6 +1,6 @@
 ﻿namespace DinnerSpinner.Api.Features.Dishes.Read.GetById;
 
-public sealed class Request
+public sealed record Request
 {
     public int Id { get; init; }
 }

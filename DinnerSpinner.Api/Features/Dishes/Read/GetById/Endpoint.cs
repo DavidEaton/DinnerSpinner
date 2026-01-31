@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace DinnerSpinner.Api.Features.Dishes.Read.GetById;
 
 public sealed class Endpoint(AppDbContext db)
-    : Endpoint<Request, ApiResponse<Response>>
+    : Endpoint<Request, ApiResponse<Response?>>
 {
     public override void Configure()
     {
@@ -21,12 +21,6 @@ public sealed class Endpoint(AppDbContext db)
             .Include(dish => dish.Category)
             .FirstOrDefaultAsync(dish => dish.Id == request.Id, cancellationToken);
 
-        if (dish is null)
-        {
-            await Send.NotFoundAsync(cancellationToken);
-            return;
-        }
-
-        await Send.OkAsync(dish.ToGetByIdResponse(), cancellationToken);
+        await Send.OkAsync(dish?.ToGetByIdResponse(), cancellationToken);
     }
 }

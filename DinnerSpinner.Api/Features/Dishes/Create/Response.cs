@@ -1,6 +1,6 @@
 ﻿namespace DinnerSpinner.Api.Features.Dishes.Create;
 
-public sealed class Response
+public sealed record Response
 {
     public Contract Dish { get; init; } = new();
 }

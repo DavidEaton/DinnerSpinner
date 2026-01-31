@@ -20,12 +20,6 @@ public sealed class Endpoint(AppDbContext db)
         var category = await db.Categories
             .FirstOrDefaultAsync(category => category.Id == request.Id, cancellationToken);
 
-        if (category is null)
-        {
-            await Send.NotFoundAsync(cancellationToken);
-            return;
-        }
-
-        await Send.OkAsync(category.ToGetByIdResponse(), cancellationToken);
+        await Send.OkAsync(category?.ToGetByIdResponse(), cancellationToken);
     }
 }
