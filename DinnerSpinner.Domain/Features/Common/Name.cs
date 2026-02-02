@@ -9,7 +9,7 @@ public sealed record Name
     public static readonly string InvalidLengthMessage =
         $"Name must be between {MinimumLength} and {MaximumLength} characters in length";
     public static readonly string RequiredMessage = "Name is required";
-    public string Value { get; }
+    public string Value { get; } = null!;
     private Name(string value) => Value = value;
 
     public static Result<Name> Create(string? name)

@@ -1,5 +1,4 @@
-﻿using DinnerSpinner.Api.Features.Dishes.Read;
-using DinnerSpinner.Domain.Features.Dishes;
+﻿using DinnerSpinner.Domain.Features.Dishes;
 
 namespace DinnerSpinner.Api.Features.Dishes;
 
@@ -13,15 +12,6 @@ internal static class Mappings
         CategoryId = dish.CategoryId.Value,
         CategoryName = categoryName
     };
-    
-    public static Contract ToContract(
-        this DishReadRow row) => new()
-    {
-        Id = row.Id,
-        Name = row.Name,
-        CategoryId = row.CategoryId,
-        CategoryName = row.CategoryName
-    };
 
     public static Create.Response ToCreateResponse(
         this Dish dish, string categoryName) => new()
@@ -33,11 +23,5 @@ internal static class Mappings
         this Dish dish, string categoryName) => new()
     {
         Dish = dish.ToContract(categoryName)
-    };
-
-    public static Read.GetById.Response ToGetByIdResponse(
-        this DishReadRow row) => new()
-    {
-        Dish = row.ToContract()
     };
 }
