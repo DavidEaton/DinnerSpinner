@@ -1,6 +1,6 @@
 ﻿namespace DinnerSpinner.Api.Features.Dishes.Read.List;
 
-public sealed record Response: IResponse
+public sealed record Response
 {
-    public Contract Dish { get; init; } = new();
+    public List<Contract> Dishes { get; init; } = [];
 }

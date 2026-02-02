@@ -1,5 +1,6 @@
 ﻿using DinnerSpinner.Api.Common;
 using DinnerSpinner.Api.Data;
+using DinnerSpinner.Domain.Features.Common;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,6 +19,19 @@ public sealed class Endpoint(AppDbContext db)
     public override async Task HandleAsync(Request request, CancellationToken cancellationToken)
     {
         var id = Route<int>("id");
+
+        if (id <= 0)
+        {
+            await Send.ValidationAsync("Id must be a positive integer.", cancellationToken);
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Name))
+        {
+            await Send.ValidationAsync("Name is required.", cancellationToken);
+            return;
+        }
+
         var name = request.Name.Trim();
 
         var category = await db.Categories
@@ -47,7 +61,14 @@ public sealed class Endpoint(AppDbContext db)
 
         if (changed)
         {
-            category.Rename(name);
+            var nameResult = Name.Create(name);
+            if (nameResult.IsFailure)
+            {
+                await Send.ValidationAsync(nameResult.Error, cancellationToken);
+                return;
+            }
+
+            category.Rename(nameResult.Value);
             await db.SaveChangesAsync(cancellationToken);
         }
         

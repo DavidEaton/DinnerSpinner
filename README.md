@@ -2,7 +2,7 @@
 
 DinnerSpinner is a small, end-to-end meal-planning application built with **ASP.NET Core** and **Blazor WebAssembly**. It helps households keep a list of home-cooked dishes and randomly “spin” to decide what to eat for the next meal or several days.
 
-While intentionally modest in scope, this project is designed as a **portfolio showcase** demonstrating clean API design, vertical slice architecture, and the practical application of **Domain-Driven Design (DDD)** principles. Although DDD is often associated with larger systems, its core ideas—explicit boundaries, rich domain models, and enforced invariants—remain valuable even in small applications.
+While intentionally modest in scope, this project is designed as a **portfolio showcase** demonstrating clean API design, vertical slice architecture, and the practical application of **Domain-Driven Design (DDD)** principles. Although DDD is often associated with larger systems, its core ideas, such as **explicit boundaries**, **rich domain models**, and **enforced invariants**, remain valuable even in small applications.
 
 * * *
 
@@ -45,6 +45,18 @@ This separation prevents domain concepts from leaking across process boundaries 
 The domain uses **Entities** and **Value Objects** to model the problem space:
 
 * **Value Objects** (e.g., `Name`) are immutable and can only be created through factory methods that validate invariants such as length, whitespace normalization, and required constraints.
+
+### Value object creation pattern
+
+Value objects follow a consistent, defensive creation pattern to ensure invalid domain state is unrepresentable:
+
+1. **Guard clauses**  null, empty, or required checks  
+2. **Normalization**  trimming, casing, canonicalization  
+3. **Invariant validation**  length, ranges, regex, business rules  
+4. **Creation**  construct the immutable value object
+
+This ordering avoids exceptions, keeps failures explicit, and ensures all value objects are created in a valid, normalized state.
+
   
 * **Entities** (e.g., `Dish`, `Category`) encapsulate identity and lifecycle, and expose intention-revealing mutation methods (e.g., `Rename`, `ChangeCategory`) rather than public setters.
   
@@ -59,9 +71,9 @@ The domain uses a `Result` / `Result<T>` style (via **CSharpFunctionalExtensions
 
 The API layer translates domain results into consistent HTTP responses:
 
-* `400` — invalid input or failed invariants
-* `404` — missing resources
-* `409` — conflicts (e.g., duplicate dish names within a category)
+* `400`  invalid input or failed invariants
+* `404`  missing resources
+* `409`  conflicts (e.g., duplicate dish names within a category)
 
 This approach keeps:
 
@@ -89,8 +101,8 @@ Where necessary (e.g., EF materialization), the domain includes minimal accommod
 
 ## Solution layout
 
-* **DinnerSpinner.Api** — ASP.NET Core 10 Web API built with **FastEndpoints**, using request/response DTOs and FluentValidation
-* **DinnerSpinner.Client** — Blazor WebAssembly front end (Razor components) that consumes the API
+* **DinnerSpinner.Api**  ASP.NET Core 10 Web API built with **FastEndpoints**, using request/response DTOs and FluentValidation
+* **DinnerSpinner.Client**  Blazor WebAssembly front end (Razor components) that consumes the API
 
 The API and client are developed and run independently to reinforce separation of concerns.
 
@@ -166,11 +178,11 @@ The API follows a REST-style design and is discoverable via Swagger.
 
 Typical endpoints include:
 
-* `GET /dishes` — list all dishes
-* `POST /dishes` — create a dish
-* `GET /dishes/{id}` — retrieve a single dish
-* `PUT /dishes/{id}` — update a dish
-* `DELETE /dishes/{id}` — delete a dish
+* `GET /dishes`  list all dishes
+* `POST /dishes`  create a dish
+* `GET /dishes/{id}`  retrieve a single dish
+* `PUT /dishes/{id}`  update a dish
+* `DELETE /dishes/{id}`  delete a dish
 
 ### API design notes
 

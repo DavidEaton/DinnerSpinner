@@ -6,16 +6,11 @@ public sealed record Name
 {
     public const int MinimumLength = 2;
     public const int MaximumLength = 255;
-
     public static readonly string InvalidLengthMessage =
         $"Name must be between {MinimumLength} and {MaximumLength} characters in length";
-
     public static readonly string RequiredMessage = "Name is required";
-
-    private readonly string _value = null!;
-    public string Value => _value;
-
-    private Name(string value) => _value = value;
+    public string Value { get; }
+    private Name(string value) => Value = value;
 
     public static Result<Name> Create(string? name)
     {

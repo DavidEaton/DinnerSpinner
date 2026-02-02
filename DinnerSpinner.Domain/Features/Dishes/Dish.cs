@@ -7,42 +7,37 @@ namespace DinnerSpinner.Domain.Features.Dishes;
 
 public class Dish : Entity
 {
-    public Category Category { get; private set; } = null!;
     public Name Name { get; private set; } = null!;
+    public CategoryId CategoryId { get; private set; } = null!;
 
-
-    private Dish(Name name, Category category)
+    private Dish(Name name, CategoryId categoryId)
     {
         Name = name;
-        Category = category;
+        CategoryId = categoryId;
     }
 
-    public static Result<Dish> Create(Name name, Category category)
-    {
-        if (name is null)
-            return Result.Failure<Dish>("Name is required.");
-
-        if (category is null)
-            return Result.Failure<Dish>("Category is required.");
-
-        return Result.Success(new Dish(name, category));
-    }
+    public static Result<Dish> Create(Name name, CategoryId categoryId)
+        => Result.Success(new Dish(name, categoryId));
 
     public Result Rename(Name newName)
     {
-        if (newName is null)
-            return Result.Failure("Name is required.");
+        if (Name == newName)
+        {
+            return Result.Success(); //no-op
+        }
 
         Name = newName;
         return Result.Success();
     }
 
-    public Result ChangeCategory(Category newCategory)
+    public Result ChangeCategory(CategoryId newCategoryId)
     {
-        if (newCategory is null)
-            return Result.Failure("Category is required.");
+        if (CategoryId == newCategoryId)
+        {
+            return Result.Success(); //no-op
+        }
 
-        Category = newCategory;
+        CategoryId = newCategoryId;
         return Result.Success();
     }
 

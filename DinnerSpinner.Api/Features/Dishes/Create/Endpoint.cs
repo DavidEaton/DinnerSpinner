@@ -1,5 +1,6 @@
 ﻿using DinnerSpinner.Api.Common;
 using DinnerSpinner.Api.Data;
+using DinnerSpinner.Domain.Features.Categories;
 using DinnerSpinner.Domain.Features.Common;
 using DinnerSpinner.Domain.Features.Dishes;
 using FastEndpoints;
@@ -20,7 +21,19 @@ namespace DinnerSpinner.Api.Features.Dishes.Create
 
         public override async Task HandleAsync(Request request, CancellationToken cancellationToken)
         {
-            var name = request.Name.Trim();
+            if (request.CategoryId <= 0)
+            {
+                await Send.ValidationAsync("CategoryId must be a positive integer.", cancellationToken);
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Name))
+            {
+                await Send.ValidationAsync("Name is required.", cancellationToken);
+                return;
+            }
+
+            var trimmed = request.Name.Trim();
             var categoryId = request.CategoryId;
             var category = await db.Categories.FindAsync([categoryId], cancellationToken);
             
@@ -31,7 +44,9 @@ namespace DinnerSpinner.Api.Features.Dishes.Create
             }
 
             var exists = await db.Dishes.AnyAsync(
-                d => d.Name.Value == name && d.Category.Id == categoryId,
+                d => d.Name.Value == trimmed
+                &&
+                d.CategoryId.Value == categoryId,
                 cancellationToken);
 
             if (exists)
@@ -42,7 +57,7 @@ namespace DinnerSpinner.Api.Features.Dishes.Create
                 return;
             }
 
-            var nameResult = Name.Create(name);
+            var nameResult = Name.Create(trimmed);
             
             if (nameResult.IsFailure)
             {
@@ -50,7 +65,15 @@ namespace DinnerSpinner.Api.Features.Dishes.Create
                 return;
             }
 
-            var dishResult = Dish.Create(nameResult.Value, category);
+            var categoryIdResult = CategoryId.Create(categoryId);
+            if (categoryIdResult.IsFailure)
+            {
+                await Send.ValidationAsync(categoryIdResult.Error, cancellationToken);
+                return;
+            }
+
+            var dishResult = Dish
+                .Create(nameResult.Value, categoryIdResult.Value);
 
             if (dishResult.IsFailure)
             {
@@ -62,7 +85,7 @@ namespace DinnerSpinner.Api.Features.Dishes.Create
             await db.SaveChangesAsync(cancellationToken);
 
             await Send.CreatedAsync(
-                dishResult.Value.ToCreateResponse(),
+                dishResult.Value.ToCreateResponse(category.Name.Value),
                 cancellationToken);
         }
     }

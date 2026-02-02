@@ -17,10 +17,29 @@ public sealed class Endpoint(AppDbContext db)
 
     public override async Task HandleAsync(Request request, CancellationToken cancellationToken)
     {
-        var dish = await db.Dishes
-            .Include(dish => dish.Category)
-            .FirstOrDefaultAsync(dish => dish.Id == request.Id, cancellationToken);
+        var id = Route<int>("id");
 
-        await Send.OkAsync(dish?.ToGetByIdResponse(), cancellationToken);
+        var row = await db.Dishes
+            .AsNoTracking()
+            .Join(
+                db.Categories.AsNoTracking(),
+                dish => dish.CategoryId.Value,
+                category => category.Id,
+                (dish, category) => new DishReadRow(
+                    dish.Id,
+                    dish.Name.Value,
+                    dish.CategoryId.Value,
+                    category.Name.Value
+                )
+            )
+            .SingleOrDefaultAsync(row => row.Id == id, cancellationToken);
+
+        if (row is null)
+        {
+            await Send.NotFoundAsync("Dish not found.", cancellationToken);
+            return;
+        }
+
+        await Send.OkAsync(row.ToGetByIdResponse(), cancellationToken);
     }
 }

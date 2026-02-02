@@ -9,37 +9,36 @@ public class Category : Entity
     public Name Name { get; private set; } = null!;
 
     private Category(Name name)
-    {
-        Name = name;
-    }
+        => Name = name;
 
-    public static Result<Category> Create(string name)
+    public static Result<Category> Create(Name name)
     {
-        var nameResult = Name.Create(name);
-        if (nameResult.IsFailure)
+        if (name is null)
         {
-            return Result.Failure<Category>(nameResult.Error);
+            return Result.Failure<Category>(Name.RequiredMessage);
         }
 
-        return Result.Success(new Category(nameResult.Value));
+        return Result.Success(new Category(name));
     }
 
-
-    public Result Rename(string newName)
+    public Result Rename(Name newName)
     {
-        var nameResult = Name.Create(newName);
-        if (nameResult.IsFailure)
+        if (newName is null)
         {
-            return Result.Failure<Category>(nameResult.Error);
+            return Result.Failure<Category>(Name.RequiredMessage);
         }
 
-        return Result.Success(new Category(nameResult.Value));
+        if (Name == newName)
+        {
+            return Result.Success(); //no-op
+        }
+
+        Name = newName;
+        return Result.Success();
     }
 
     public override string ToString()
-    {
-        return Name.ToString();
-    }
+        => Name.ToString();
 
     // Entity Framework requires an empty constructor
     protected Category() { }

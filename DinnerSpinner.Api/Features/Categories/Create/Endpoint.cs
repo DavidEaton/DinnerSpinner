@@ -34,7 +34,14 @@ public class Endpoint(AppDbContext db)
             return;
         }
 
-        var categoryResult = Category.Create(name);
+        var nameResult = Name.Create(name);
+        if (nameResult.IsFailure)
+        {
+            await Send.ValidationAsync(nameResult.Error, cancellationToken);
+            return;
+        }
+
+        var categoryResult = Category.Create(nameResult.Value);
         if (categoryResult.IsFailure)
         {
             await Send.ValidationAsync(categoryResult.Error, cancellationToken);
