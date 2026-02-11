@@ -1,4 +1,6 @@
-﻿namespace DinnerSpinner.Api.Features.Dishes.Read.List;
+﻿using System.Collections.Generic;
+
+namespace DinnerSpinner.Api.Features.Dishes.Read.List;
 
 public sealed record Response
 {
