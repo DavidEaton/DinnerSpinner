@@ -5,6 +5,7 @@ namespace DinnerSpinner.Domain.Features.Categories;
 public sealed record CategoryId
 {
     private const string DisplayName = nameof(CategoryId);
+    internal const string InvalidMessage = $"{DisplayName} must be a positive integer.";
 
     public int Value { get; }
 
@@ -15,7 +16,7 @@ public sealed record CategoryId
     {
         if (value <= 0)
         {
-            return Result.Failure<CategoryId>($"{DisplayName} must be a positive integer.");
+            return Result.Failure<CategoryId>(InvalidMessage);
         }
 
         return Result.Success(new CategoryId(value));
@@ -23,6 +24,6 @@ public sealed record CategoryId
 
     public override string ToString() => Value.ToString();
 
-    // Entity Framework requires an empty constructor
+    // Entity Framework requires a parameterless constructor for entity materialization
     private CategoryId() { }
 }

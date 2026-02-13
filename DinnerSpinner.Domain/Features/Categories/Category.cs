@@ -6,40 +6,37 @@ namespace DinnerSpinner.Domain.Features.Categories;
 
 public class Category : Entity
 {
-    public Name Name { get; private set; } = null!;
+    public Name Name { get; private set; }
 
     private Category(Name name)
         => Name = name;
 
     public static Result<Category> Create(Name name)
     {
-        if (name is null)
-        {
-            return Result.Failure<Category>(Name.RequiredMessage);
-        }
+        if (name is null || string.IsNullOrWhiteSpace(name.Value))
+            return Fail(Name.RequiredMessage);
 
         return Result.Success(new Category(name));
     }
 
-    public Result Rename(Name newName)
+    public Result<Category> Rename(Name newName)
     {
-        if (newName is null)
-        {
-            return Result.Failure<Category>(Name.RequiredMessage);
-        }
+        if (newName is null || string.IsNullOrWhiteSpace(newName.Value))
+            return Fail(Name.RequiredMessage);
 
-        if (Name == newName)
-        {
-            return Result.Success(); //no-op
-        }
+        if (Name != newName)
+            Name = newName;
 
-        Name = newName;
-        return Result.Success();
+        return Result.Success(this);
     }
 
+    private static Result<Category> Fail(string message) =>
+        Result.Failure<Category>(message);
+    
     public override string ToString()
         => Name.ToString();
 
-    // Entity Framework requires an empty constructor
-    protected Category() { }
+    // Entity Framework requires a parameterless constructor for entity materialization
+    protected Category() =>
+        Name = null!;
 }

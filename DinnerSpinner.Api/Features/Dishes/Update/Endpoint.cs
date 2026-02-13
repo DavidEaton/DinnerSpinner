@@ -86,7 +86,7 @@ public sealed class Endpoint(AppDbContext db)
                 return;
             }
 
-            var renameResult = dish.Rename(newNameResult.Value);
+            var renameResult = dish.ChangeName(newNameResult.Value);
             if (renameResult.IsFailure)
             {
                 await Send.ValidationAsync(renameResult.Error, cancellationToken);

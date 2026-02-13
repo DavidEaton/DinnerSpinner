@@ -9,7 +9,7 @@ public sealed record Name
     public static readonly string InvalidLengthMessage =
         $"Name must be between {MinimumLength} and {MaximumLength} characters in length";
     public static readonly string RequiredMessage = "Name is required";
-    public string Value { get; } = null!;
+    public string Value { get; private set; }
     private Name(string value) => Value = value;
 
     public static Result<Name> Create(string? name)
@@ -27,6 +27,7 @@ public sealed record Name
 
     public override string ToString() => Value;
 
-    // Entity Framework requires an empty constructor
-    private Name() { }
+    // Entity Framework requires a parameterless constructor for entity materialization
+    private Name() =>
+        Value = null!;
 }
