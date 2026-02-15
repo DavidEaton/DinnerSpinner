@@ -71,7 +71,7 @@ public sealed class Endpoint(AppDbContext db)
                 return;
             }
 
-            category.Rename(nameResult.Value);
+            category.ChangeName(nameResult.Value);
             await db.SaveChangesAsync(cancellationToken);
         }
         

@@ -62,12 +62,13 @@ internal static class SendExtensions
         where TRequest : notnull
         => send.ErrorAsync(ApiError.Unexpected(message), cancellationToken);
 
-    private static int ToStatusCode(ErrorCode code) => code switch
+    private static int ToStatusCode(ErrorCode code)
+    => code switch
     {
         ErrorCode.Validation => 400,
-        ErrorCode.NotFound   => 404,
-        ErrorCode.Conflict   => 409,
-        ErrorCode.Forbidden  => 403,
-        _                    => 500
+        ErrorCode.NotFound => 404,
+        ErrorCode.Conflict => 409,
+        ErrorCode.Forbidden => 403,
+        _ => 500
     };
 }

@@ -24,13 +24,13 @@ public sealed class Endpoint(AppDbContext db)
             .AsNoTracking()
             .Join(
                 db.Categories.AsNoTracking(),
-                d => d.CategoryId.Value,
-                c => c.Id,
-                (d, c) => new DishReadRow(
-                    d.Id,
-                    d.Name.Value,
-                    d.CategoryId.Value,
-                    c.Name.Value
+                dish => dish.CategoryId.Value,
+                category => category.Id,
+                (dish, category) => new DishReadRow(
+                    dish.Id,
+                    dish.Name.Value,
+                    dish.CategoryId.Value,
+                    category.Name.Value
                 )
             )
             .ToListAsync(cancellationToken);

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace DinnerSpinner.Api.Features.Dishes.Read.GetById;
 
 public sealed class Endpoint(AppDbContext db)
-    : Endpoint<Request, ApiResponse<Response?>>
+    : Endpoint<Request, ApiResponse<Response>>
 {
     public override void Configure()
     {

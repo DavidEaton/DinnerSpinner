@@ -1,6 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using DinnerSpinner.Domain.Features.Common;
-using Entity = DinnerSpinner.Domain.BaseClasses.Entity;
+using Entity = DinnerSpinner.Domain.Abstractions.Entity;
 
 namespace DinnerSpinner.Domain.Features.Categories;
 
@@ -19,13 +19,13 @@ public class Category : Entity
         return Result.Success(new Category(name));
     }
 
-    public Result<Category> Rename(Name newName)
+    public Result<Category> ChangeName(Name changedName)
     {
-        if (newName is null || string.IsNullOrWhiteSpace(newName.Value))
+        if (changedName is null || string.IsNullOrWhiteSpace(changedName.Value))
             return Fail(Name.RequiredMessage);
 
-        if (Name != newName)
-            Name = newName;
+        if (Name != changedName)
+            Name = changedName;
 
         return Result.Success(this);
     }

@@ -1,5 +1,4 @@
-﻿using DinnerSpinner.Api.Common;
-using DinnerSpinner.Api.Data;
+﻿using DinnerSpinner.Api.Data;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
 using System.Threading;
@@ -8,7 +7,7 @@ using System.Threading.Tasks;
 namespace DinnerSpinner.Api.Features.Categories.Read.GetById;
 
 public sealed class Endpoint(AppDbContext db)
-    : Endpoint<Request, ApiResponse<Response?>>
+    : Endpoint<Request, Response>
 {
     public override void Configure()
     {
@@ -20,8 +19,15 @@ public sealed class Endpoint(AppDbContext db)
     public override async Task HandleAsync(Request request, CancellationToken cancellationToken)
     {
         var category = await db.Categories
-            .FirstOrDefaultAsync(category => category.Id == request.Id, cancellationToken);
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.Id == request.Id, cancellationToken);
 
-        await Send.OkAsync(category?.ToGetByIdResponse(), cancellationToken);
+        if (category is null)
+        {
+            await Send.NotFoundAsync(cancellationToken);
+            return;
+        }
+
+        await Send.OkAsync(category.ToGetByIdResponse(), cancellationToken);
     }
 }

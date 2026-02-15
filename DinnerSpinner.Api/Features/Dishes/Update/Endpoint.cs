@@ -38,7 +38,6 @@ public sealed class Endpoint(AppDbContext db)
         var id = Route<int>("id");
         var name = request.Dish.Name.Trim();
         var categoryId = request.Dish.CategoryId;
-        var CategoryName = request.Dish.CategoryName;
 
         var dish = await db.Dishes
             .FirstOrDefaultAsync(d => d.Id == id, cancellationToken);
@@ -58,6 +57,7 @@ public sealed class Endpoint(AppDbContext db)
             return;
         }
 
+        var categoryName = category.Name.Value;
         var duplicateExists = await db.Dishes.AnyAsync(
             d => d.Id != id &&
                  d.Name.Value == name &&
@@ -112,6 +112,6 @@ public sealed class Endpoint(AppDbContext db)
         }
 
         await db.SaveChangesAsync(cancellationToken);
-        await Send.OkAsync(dish.ToUpdateResponse(CategoryName), cancellationToken);
+        await Send.OkAsync(dish.ToUpdateResponse(categoryName), cancellationToken);
     }
 }

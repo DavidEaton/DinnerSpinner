@@ -1,4 +1,4 @@
-namespace DinnerSpinner.Domain.BaseClasses;
+namespace DinnerSpinner.Domain.Abstractions;
 
 public abstract class Entity
 {

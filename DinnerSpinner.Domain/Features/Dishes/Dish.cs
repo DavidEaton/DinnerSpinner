@@ -1,7 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using DinnerSpinner.Domain.Features.Categories;
 using DinnerSpinner.Domain.Features.Common;
-using Entity = DinnerSpinner.Domain.BaseClasses.Entity;
+using Entity = DinnerSpinner.Domain.Abstractions.Entity;
 
 namespace DinnerSpinner.Domain.Features.Dishes;
 
@@ -20,6 +20,7 @@ public class Dish : Entity
 
     public static Result<Dish> Create(Name name, CategoryId categoryId)
     {
+        // local semantic alias for Result.Failure<Dish> to simplify guard clauses
         static Result<Dish> Fail(string message) =>
             Result.Failure<Dish>(message);
 
@@ -32,26 +33,26 @@ public class Dish : Entity
         return Result.Success(new Dish(name, categoryId));
     }
 
-    public Result ChangeName(Name newName)
+    public Result<Name> ChangeName(Name changedName)
     {
-        if (Name == newName)
+        if (Name == changedName)
         {
-            return Result.Success(); //no-op
+            return Result.Success(Name); //no-op
         }
 
-        Name = newName;
-        return Result.Success();
+        Name = changedName;
+        return Result.Success(Name);
     }
 
-    public Result ChangeCategory(CategoryId newCategoryId)
+    public Result<CategoryId> ChangeCategory(CategoryId changedCategoryId)
     {
-        if (CategoryId == newCategoryId)
+        if (CategoryId == changedCategoryId)
         {
-            return Result.Success("Category updated successfully."); // no-op
+            return Result.Success(CategoryId); // no-op
         }
 
-        CategoryId = newCategoryId; // State mutation. Side effects should be explicit. "Mutating aggregate state."
-        return Result.Success(); // Result signaling. Returns status, not data.
+        CategoryId = changedCategoryId; // State mutation. Side effects should be explicit. "Mutating aggregate state."
+        return Result.Success(CategoryId); // Result signaling. Returns status, not data.
     }
 
     public override string ToString()
@@ -60,7 +61,7 @@ public class Dish : Entity
     // Entity Framework requires a parameterless constructor for entity materialization
     protected Dish()
     {
-         //Non-nullable property 'Name' must contain a non-null value when exiting constructor.
+        //Non-nullable property 'Name' must contain a non-null value when exiting constructor.
         Name = null!;
         // Non-nullable property 'CategoryId' must contain a non-null value when exiting constructor.
         CategoryId = value;
