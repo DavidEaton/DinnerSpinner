@@ -1,8 +1,9 @@
 using CSharpFunctionalExtensions;
+using DinnerSpinner.Domain.Abstractions;
 
 namespace DinnerSpinner.Domain.Features.Common;
 
-public sealed record Name
+public sealed record Name : IValueObject
 {
     public const int MinimumLength = 2;
     public const int MaximumLength = 255;

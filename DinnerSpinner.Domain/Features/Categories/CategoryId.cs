@@ -1,8 +1,9 @@
 using CSharpFunctionalExtensions;
+using DinnerSpinner.Domain.Abstractions;
 
 namespace DinnerSpinner.Domain.Features.Categories;
 
-public sealed record CategoryId
+public sealed record CategoryId : IValueObject
 {
     private const string DisplayName = nameof(CategoryId);
     internal const string InvalidMessage = $"{DisplayName} must be a positive integer.";
