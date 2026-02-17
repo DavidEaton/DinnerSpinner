@@ -13,7 +13,7 @@ public class Category : Entity
 
     public static Result<Category> Create(Name name)
     {
-        if (name is null || string.IsNullOrWhiteSpace(name.Value))
+        if (IsMissing(name))
             return Fail(Name.RequiredMessage);
 
         return Result.Success(new Category(name));
@@ -21,7 +21,7 @@ public class Category : Entity
 
     public Result<Category> ChangeName(Name changedName)
     {
-        if (changedName is null || string.IsNullOrWhiteSpace(changedName.Value))
+        if (IsMissing(changedName))
             return Fail(Name.RequiredMessage);
 
         if (Name != changedName)
@@ -33,6 +33,9 @@ public class Category : Entity
     private static Result<Category> Fail(string message) =>
         Result.Failure<Category>(message);
     
+    private static bool IsMissing(Name name) =>
+        name is null || string.IsNullOrWhiteSpace(name.Value);
+
     public override string ToString()
         => Name.ToString();
 

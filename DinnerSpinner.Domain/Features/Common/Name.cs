@@ -6,8 +6,10 @@ public sealed record Name
 {
     public const int MinimumLength = 2;
     public const int MaximumLength = 255;
+
     public static readonly string InvalidLengthMessage =
         $"Name must be between {MinimumLength} and {MaximumLength} characters in length";
+        
     public static readonly string RequiredMessage = "Name is required";
     
     public string Value { get; private set; }
@@ -15,15 +17,18 @@ public sealed record Name
 
     public static Result<Name> Create(string? name)
     {
-        if (string.IsNullOrWhiteSpace(name))
+        name = (name ?? string.Empty).Trim();
+
+        if (name.Length == 0)
+        {
             return Result.Failure<Name>(RequiredMessage);
-
-        var trimmed = name.Trim();
-
-        if (trimmed.Length is < MinimumLength or > MaximumLength)
-            return Result.Failure<Name>(InvalidLengthMessage);
-
-        return Result.Success(new Name(trimmed));
+        }
+        else
+        {
+            return name.Length is < MinimumLength or > MaximumLength
+            ? Result.Failure<Name>(InvalidLengthMessage)
+            : Result.Success(new Name(name));
+        }
     }
 
     public override string ToString() => Value;

@@ -24,7 +24,7 @@ public class Dish : Entity
         static Result<Dish> Fail(string message) =>
             Result.Failure<Dish>(message);
 
-        if (name is null || string.IsNullOrWhiteSpace(name.Value))
+        if (IsMissing(name))
             return Fail(Name.RequiredMessage);
 
         if (categoryId.Value <= 0)
@@ -35,6 +35,16 @@ public class Dish : Entity
 
     public Result<Name> ChangeName(Name changedName)
     {
+        static Result<Name> Fail(string message)
+        {
+            return Result.Failure<Name>(message);
+        }
+
+        if (IsMissing(changedName))
+        {
+            return Fail(Name.RequiredMessage);
+        }
+
         if (Name == changedName)
         {
             return Result.Success(Name); //no-op
@@ -57,6 +67,9 @@ public class Dish : Entity
 
     public override string ToString()
         => Name.ToString();
+
+    private static bool IsMissing(Name name) =>
+        name is null || string.IsNullOrWhiteSpace(name.Value);
 
     // Entity Framework requires a parameterless constructor for entity materialization
     protected Dish()

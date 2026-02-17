@@ -1,13 +1,14 @@
-﻿using DinnerSpinner.Api.Data;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using DinnerSpinner.Api.Common;
+using DinnerSpinner.Api.Data;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace DinnerSpinner.Api.Features.Categories.Read.GetById;
 
 public sealed class Endpoint(AppDbContext db)
-    : Endpoint<Request, Response>
+    : Endpoint<Request, ApiResponse<Response>>
 {
     public override void Configure()
     {
@@ -24,7 +25,7 @@ public sealed class Endpoint(AppDbContext db)
 
         if (category is null)
         {
-            await Send.NotFoundAsync(cancellationToken);
+            await Send.NotFoundAsync("Category not found.", cancellationToken);
             return;
         }
 
