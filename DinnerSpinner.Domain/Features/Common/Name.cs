@@ -1,5 +1,6 @@
 using CSharpFunctionalExtensions;
 using DinnerSpinner.Domain.Abstractions;
+using DinnerSpinner.Domain.Errors;
 
 namespace DinnerSpinner.Domain.Features.Common;
 
@@ -10,26 +11,25 @@ public sealed record Name : IValueObject
 
     public static readonly string InvalidLengthMessage =
         $"Name must be between {MinimumLength} and {MaximumLength} characters in length";
-        
     public static readonly string RequiredMessage = "Name is required";
-    
-    public string Value { get; private set; }
+
+    public string Value { get; }
     private Name(string value) => Value = value;
 
-    public static Result<Name> Create(string? name)
+    public static Result<Name, DomainError> Create(string name)
     {
-        name = (name ?? string.Empty).Trim();
+        if (string.IsNullOrWhiteSpace(name.Trim()) || name.Trim().Length == 0)
+        {
+            return DomainError.Validation(RequiredMessage, "Name");
+        }
 
-        if (name.Length == 0)
+        string trimmedName = name.Trim();
+        if (trimmedName.Length < MinimumLength || trimmedName.Length > MaximumLength)
         {
-            return Result.Failure<Name>(RequiredMessage);
+            return DomainError.Validation(InvalidLengthMessage, "Name");
         }
-        else
-        {
-            return name.Length is < MinimumLength or > MaximumLength
-            ? Result.Failure<Name>(InvalidLengthMessage)
-            : Result.Success(new Name(name));
-        }
+
+        return new Name(trimmedName);
     }
 
     public override string ToString() => Value;

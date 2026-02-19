@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using DinnerSpinner.Domain.Errors;
 using DinnerSpinner.Domain.Features.Common;
 using Entity = DinnerSpinner.Domain.Abstractions.Entity;
 
@@ -11,28 +12,28 @@ public class Category : Entity
     private Category(Name name)
         => Name = name;
 
-    public static Result<Category> Create(Name name)
+    public static Result<Category, DomainError> Create(Name name)
     {
-        if (IsMissing(name))
-            return Fail(Name.RequiredMessage);
-
-        return Result.Success(new Category(name));
+        return IsMissing(name)
+            ? DomainError.Validation(Name.RequiredMessage, "Name")
+            : new Category(name);
     }
 
-    public Result<Category> ChangeName(Name changedName)
+    public Result<Category, DomainError> ChangeName(Name changedName)
     {
         if (IsMissing(changedName))
-            return Fail(Name.RequiredMessage);
+        {
+            return DomainError.Validation(Name.RequiredMessage, "Name");
+        }
 
         if (Name != changedName)
+        {
             Name = changedName;
+        }
 
-        return Result.Success(this);
+        return this;
     }
 
-    private static Result<Category> Fail(string message) =>
-        Result.Failure<Category>(message);
-    
     private static bool IsMissing(Name name) =>
         name is null || string.IsNullOrWhiteSpace(name.Value);
 

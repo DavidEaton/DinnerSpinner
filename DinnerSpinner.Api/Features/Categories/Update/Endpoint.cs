@@ -1,7 +1,9 @@
 ﻿using DinnerSpinner.Api.Common;
 using DinnerSpinner.Api.Data;
+using DinnerSpinner.Domain.Errors;
 using DinnerSpinner.Domain.Features.Common;
 using FastEndpoints;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading;
@@ -21,60 +23,65 @@ public sealed class Endpoint(AppDbContext db)
     }
     public override async Task HandleAsync(Request request, CancellationToken cancellationToken)
     {
-        var id = Route<int>("id");
-
-        if (id <= 0)
-        {
-            await Send.ValidationAsync("Id must be a positive integer.", cancellationToken);
-            return;
-        }
+        var id = request.Id;
 
         if (string.IsNullOrWhiteSpace(request.Name))
         {
-            await Send.ValidationAsync("Name is required.", cancellationToken);
-            return;
+            AddError(
+                property: request => request.Name,
+                errorMessage: "Name is required.",
+                severity: Severity.Error,
+                errorCode: ErrorCode.Validation.ToString());
+
+            ThrowIfAnyErrors();
         }
 
-        var name = request.Name.Trim();
+        var trimmedName = request.Name.Trim();
 
         var category = await db.Categories
             .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
-
         if (category is null)
         {
-            await Send.NotFoundAsync("Category not found.", cancellationToken);
-            return;
+            ThrowError(
+                message: "Category not found.",
+                errorCode: ErrorCode.NotFound.ToString(),
+                statusCode: StatusCodes.Status404NotFound);
         }
 
-        var duplicateExists = await db.Categories.AnyAsync(
-            c => c.Id != id &&
-                 c.Name.Value == name,
+        var exists = await db.Categories.AnyAsync(
+            category =>
+            category.Id != id
+            &&
+            category.Name.Value == trimmedName,
             cancellationToken);
-
-        if (duplicateExists)
+        if (exists)
         {
-            await Send.ConflictAsync(
-                "A category with the same name already exists.",
-                cancellationToken);
-            return;
+            ThrowError(
+                message: "A category with the same name already exists.",
+                errorCode: ErrorCode.Conflict.ToString(),
+                statusCode: StatusCodes.Status409Conflict);
         }
 
         var changed =
-            !string.Equals(category.Name.Value, name, StringComparison.Ordinal);
-
+            !string.Equals(category.Name.Value, trimmedName, StringComparison.Ordinal);
         if (changed)
         {
-            var nameResult = Name.Create(name);
+            var nameResult = Name.Create(trimmedName);
             if (nameResult.IsFailure)
             {
-                await Send.ValidationAsync(nameResult.Error, cancellationToken);
-                return;
+                AddError(
+                    property: request => request.Name,
+                    errorMessage: nameResult.Error.ToString(),
+                    severity: Severity.Error,
+                    errorCode: ErrorCode.Validation.ToString());
+
+                ThrowIfAnyErrors();
             }
 
             category.ChangeName(nameResult.Value);
             await db.SaveChangesAsync(cancellationToken);
         }
-        
+
         await Send.OkAsync(category.ToUpdateResponse(), cancellationToken);
     }
 }

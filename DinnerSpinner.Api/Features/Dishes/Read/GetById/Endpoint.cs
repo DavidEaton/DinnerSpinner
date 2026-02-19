@@ -3,7 +3,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using DinnerSpinner.Api.Common;
 using DinnerSpinner.Api.Data;
+using DinnerSpinner.Domain.Errors;
 using FastEndpoints;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace DinnerSpinner.Api.Features.Dishes.Read.GetById;
@@ -20,7 +22,11 @@ public sealed class Endpoint(AppDbContext db)
 
     public override async Task HandleAsync(Request request, CancellationToken cancellationToken)
     {
-        var id = Route<int>("id");
+        // FluentValidation handles request validation before HandleAsync 
+        // if (request.Id <= 0)
+        // {
+        //     ThrowNotFoundError();
+        // }
 
         var row = await db.Dishes
             .AsNoTracking()
@@ -35,14 +41,16 @@ public sealed class Endpoint(AppDbContext db)
                     category.Name.Value
                 )
             )
-            .SingleOrDefaultAsync(row => row.Id == id, cancellationToken);
+            .SingleOrDefaultAsync(row => row.Id == request.Id, cancellationToken);
 
         if (row is null)
         {
-            await Send.NotFoundAsync("Dish not found.", cancellationToken);
-            return;
+            ThrowError(
+                message: "Dish not found.",
+                errorCode: ErrorCode.NotFound.ToString(),
+                statusCode: StatusCodes.Status404NotFound);
         }
 
-        await Send.OkAsync(row.ToGetByIdResponse(), cancellationToken);
+        await Send.OkAsync(row!.ToGetByIdResponse(), cancellationToken);
     }
 }

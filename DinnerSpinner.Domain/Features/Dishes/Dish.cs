@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using DinnerSpinner.Domain.Errors;
 using DinnerSpinner.Domain.Features.Categories;
 using DinnerSpinner.Domain.Features.Common;
 using Entity = DinnerSpinner.Domain.Abstractions.Entity;
@@ -7,8 +8,6 @@ namespace DinnerSpinner.Domain.Features.Dishes;
 
 public class Dish : Entity
 {
-    private const CategoryId value = null;
-
     public Name Name { get; private set; }
     public CategoryId CategoryId { get; private set; }
 
@@ -18,51 +17,53 @@ public class Dish : Entity
         CategoryId = categoryId;
     }
 
-    public static Result<Dish> Create(Name name, CategoryId categoryId)
+    public static Result<Dish, DomainError> Create(Name name, CategoryId categoryId)
     {
-        // local semantic alias for Result.Failure<Dish> to simplify guard clauses
-        static Result<Dish> Fail(string message) =>
-            Result.Failure<Dish>(message);
-
         if (IsMissing(name))
-            return Fail(Name.RequiredMessage);
-
-        if (categoryId.Value <= 0)
-            return Fail(CategoryId.InvalidMessage);
-
-        return Result.Success(new Dish(name, categoryId));
-    }
-
-    public Result<Name> ChangeName(Name changedName)
-    {
-        static Result<Name> Fail(string message)
         {
-            return Result.Failure<Name>(message);
+            return DomainError.Validation(Name.RequiredMessage, "Name");
         }
 
+        var categoryIdIsInvalid = categoryId is null || categoryId.Value <= 0;
+        if (categoryIdIsInvalid)
+        {
+            return DomainError.Validation(CategoryId.InvalidMessage, "CategoryId");
+        }
+
+        return new Dish(name, categoryId!);
+    }
+
+    public Result<Name, DomainError> ChangeName(Name changedName)
+    {
         if (IsMissing(changedName))
         {
-            return Fail(Name.RequiredMessage);
+            return DomainError.Validation(Name.RequiredMessage, "Name");
         }
 
         if (Name == changedName)
         {
-            return Result.Success(Name); //no-op
+            return Name; //no-op
         }
 
         Name = changedName;
-        return Result.Success(Name);
+        return Name;
     }
 
-    public Result<CategoryId> ChangeCategory(CategoryId changedCategoryId)
+    public Result<CategoryId, DomainError> ChangeCategory(CategoryId changedCategoryId)
     {
-        if (CategoryId == changedCategoryId)
+        var categoryIdIsInvalid = changedCategoryId is null || changedCategoryId.Value <= 0;
+        if (categoryIdIsInvalid)
         {
-            return Result.Success(CategoryId); // no-op
+            return DomainError.Validation(CategoryId.InvalidMessage, "CategoryId");
         }
 
-        CategoryId = changedCategoryId; // State mutation. Side effects should be explicit. "Mutating aggregate state."
-        return Result.Success(CategoryId); // Result signaling. Returns status, not data.
+        if (CategoryId == changedCategoryId)
+        {
+            return CategoryId; // no-op
+        }
+
+        CategoryId = changedCategoryId!;
+        return CategoryId;
     }
 
     public override string ToString()
@@ -77,6 +78,6 @@ public class Dish : Entity
         //Non-nullable property 'Name' must contain a non-null value when exiting constructor.
         Name = null!;
         // Non-nullable property 'CategoryId' must contain a non-null value when exiting constructor.
-        CategoryId = value;
+        CategoryId = null!;
     }
 }

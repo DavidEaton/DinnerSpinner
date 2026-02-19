@@ -1,9 +1,12 @@
-﻿using DinnerSpinner.Api.Common;
+﻿using CSharpFunctionalExtensions;
+using DinnerSpinner.Api.Common;
 using DinnerSpinner.Api.Data;
+using DinnerSpinner.Domain.Errors;
 using DinnerSpinner.Domain.Features.Categories;
 using DinnerSpinner.Domain.Features.Common;
 using DinnerSpinner.Domain.Features.Dishes;
 using FastEndpoints;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,62 +28,88 @@ namespace DinnerSpinner.Api.Features.Dishes.Create
         {
             if (request.CategoryId <= 0)
             {
-                await Send.ValidationAsync("CategoryId must be a positive integer.", cancellationToken);
-                return;
+                AddError(
+                    property: request => request.CategoryId,
+                    errorMessage: "CategoryId must be a positive integer.",
+                    severity: Severity.Error,
+                    errorCode: ErrorCode.Validation.ToString());
+
+                // emits 400 ProblemDetails (our DinnerSpinnerProblemDetails DTO)
+                ThrowIfAnyErrors();
             }
 
             if (string.IsNullOrWhiteSpace(request.Name))
             {
-                await Send.ValidationAsync("Name is required.", cancellationToken);
-                return;
+                AddError(
+                    property: request => request.Name,
+                    errorMessage: "Name is required.",
+                    severity: Severity.Error,
+                    errorCode: ErrorCode.Validation.ToString());
+
+                ThrowIfAnyErrors();
             }
 
-            var trimmed = request.Name.Trim();
+            var trimmedName = request.Name.Trim();
             var categoryId = request.CategoryId;
             var category = await db.Categories.FindAsync([categoryId], cancellationToken);
-            
             if (category is null)
             {
-                await Send.NotFoundAsync("Category not found.", cancellationToken);
-                return;
+                ThrowError(
+                    message: "Category not found.",
+                    errorCode: ErrorCode.NotFound.ToString(),
+                    statusCode: StatusCodes.Status404NotFound);
             }
 
             var exists = await db.Dishes.AnyAsync(
-                d => d.Name.Value == trimmed
+                dish =>
+                dish.Name.Value == trimmedName
                 &&
-                d.CategoryId.Value == categoryId,
+                dish.CategoryId.Value == categoryId,
                 cancellationToken);
-
             if (exists)
             {
-                await Send.ConflictAsync(
-                    "A dish with the same name already exists in this category.",
-                    cancellationToken);
-                return;
+                ThrowError(
+                    message: "A dish with the same name already exists in this category.",
+                    errorCode: ErrorCode.Conflict.ToString(),
+                    statusCode: StatusCodes.Status409Conflict);
             }
 
-            var nameResult = Name.Create(trimmed);
-            
+            var nameResult = Name.Create(trimmedName);
             if (nameResult.IsFailure)
             {
-                await Send.ValidationAsync(nameResult.Error, cancellationToken);
-                return;
+                AddError(
+                    property: request => request.Name,
+                    errorMessage: nameResult.Error.ToString(),
+                    severity: Severity.Error,
+                    errorCode: ErrorCode.Validation.ToString());
+
+                ThrowIfAnyErrors();
             }
 
             var categoryIdResult = CategoryId.Create(categoryId);
             if (categoryIdResult.IsFailure)
             {
-                await Send.ValidationAsync(categoryIdResult.Error, cancellationToken);
-                return;
+                AddError(
+                    property: request => request.CategoryId,
+                    errorMessage: categoryIdResult.Error.ToString(),
+                    severity: Severity.Error,
+                    errorCode: ErrorCode.Validation.ToString());
+
+                ThrowIfAnyErrors();
             }
 
-            var dishResult = Dish
-                .Create(nameResult.Value, categoryIdResult.Value);
-
+            var dishResult = Dish.Create(
+                nameResult.Value,
+                categoryIdResult.Value);
             if (dishResult.IsFailure)
             {
-                await Send.ValidationAsync(dishResult.Error, cancellationToken);
-                return;
+                AddError(
+                    property: request => request.ToString(), // no specific property, so use the request as a whole for context in the error message.
+                    errorMessage: dishResult.Error.ToString(),
+                    severity: Severity.Error,
+                    errorCode: ErrorCode.Validation.ToString());
+
+                ThrowIfAnyErrors();
             }
 
             db.Dishes.Add(dishResult.Value);

@@ -1,8 +1,10 @@
 ﻿using DinnerSpinner.Api.Common;
 using DinnerSpinner.Api.Data;
+using DinnerSpinner.Domain.Errors;
 using DinnerSpinner.Domain.Features.Categories;
 using DinnerSpinner.Domain.Features.Common;
 using FastEndpoints;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading;
@@ -23,91 +25,94 @@ public sealed class Endpoint(AppDbContext db)
 
     public override async Task HandleAsync(Request request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.Dish.Name))
-        {
-            await Send.ValidationAsync("Dish name is required.", cancellationToken);
-            return;
-        }
+        // FluentValidation handles request validation before HandleAsync 
+        // if (request.Id <= 0)
+        // {
+        //     ThrowValidationError();
+        // }
 
-        if (request.Dish.CategoryId <= 0)
-        {
-            await Send.ValidationAsync("CategoryId must be a positive integer.", cancellationToken);
-            return;
-        }
-        
-        var id = Route<int>("id");
-        var name = request.Dish.Name.Trim();
+        var trimmedName = request.Dish.Name.Trim();
         var categoryId = request.Dish.CategoryId;
 
         var dish = await db.Dishes
-            .FirstOrDefaultAsync(d => d.Id == id, cancellationToken);
+            .FirstOrDefaultAsync(dish => dish.Id == request.Dish.Id, cancellationToken);
 
         if (dish is null)
         {
-            await Send.NotFoundAsync("Dish not found.", cancellationToken);
-            return;
+            ThrowError(
+                message: "Dish not found.",
+                errorCode: ErrorCode.NotFound.ToString(),
+                statusCode: StatusCodes.Status404NotFound);
         }
 
         var category = await db.Categories
-            .FirstOrDefaultAsync(c => c.Id == categoryId, cancellationToken);
+            .FirstOrDefaultAsync(category => category.Id == categoryId, cancellationToken);
 
         if (category is null)
         {
-            await Send.NotFoundAsync("Category not found.", cancellationToken);
-            return;
+            ThrowError(
+                message: "Category not found.",
+                errorCode: ErrorCode.NotFound.ToString(),
+                statusCode: StatusCodes.Status404NotFound);
         }
 
         var categoryName = category.Name.Value;
         var duplicateExists = await db.Dishes.AnyAsync(
-            d => d.Id != id &&
-                 d.Name.Value == name &&
-                 d.CategoryId.Value == categoryId,
+            dish => dish.Id != request.Dish.Id &&
+                 dish.Name.Value == trimmedName &&
+                 dish.CategoryId.Value == categoryId,
             cancellationToken);
 
         if (duplicateExists)
         {
-            await Send.ConflictAsync(
-                "A dish with the same name already exists in this category.",
-                cancellationToken);
-            return;
+            ThrowError(
+                message: "A dish with the same name already exists in this category.",
+                errorCode: ErrorCode.Conflict.ToString(),
+                statusCode: StatusCodes.Status409Conflict);
         }
 
         var nameChanged =
-            !string.Equals(dish.Name.Value, name, StringComparison.Ordinal);
-
-        var categoryChanged = dish.CategoryId.Value != categoryId;
-
+            !string.Equals(dish.Name.Value, trimmedName, StringComparison.Ordinal);
         if (nameChanged)
         {
-            var newNameResult = Name.Create(name);
+            var newNameResult = Name.Create(trimmedName);
             if (newNameResult.IsFailure)
             {
-                await Send.ValidationAsync(newNameResult.Error, cancellationToken);
-                return;
+                ThrowError(
+                    message: $"Failed to create Name: {newNameResult.Value}.",
+                    errorCode: ErrorCode.Validation.ToString(),
+                    statusCode: StatusCodes.Status400BadRequest);
             }
 
-            var renameResult = dish.ChangeName(newNameResult.Value);
-            if (renameResult.IsFailure)
+            var changeNameResult = dish.ChangeName(newNameResult.Value);
+            if (changeNameResult.IsFailure)
             {
-                await Send.ValidationAsync(renameResult.Error, cancellationToken);
-                return;
+                ThrowError(
+                    message: $"Failed to update Name: {changeNameResult.Error}.",
+                    errorCode: ErrorCode.Validation.ToString(),
+                    statusCode: StatusCodes.Status400BadRequest);
             }
         }
 
+        var categoryChanged = dish.CategoryId.Value != categoryId;
         if (categoryChanged)
         {
             var newCategoryIdResult = CategoryId.Create(categoryId);
             if (newCategoryIdResult.IsFailure)
             {
-                await Send.ValidationAsync(newCategoryIdResult.Error, cancellationToken);
-                return;
+                ThrowError(
+                    message: $"Failed to update Category: {newCategoryIdResult.Error}.",
+                    errorCode: ErrorCode.Validation.ToString(),
+                    statusCode: StatusCodes.Status400BadRequest);
             }
 
             var changeCategoryResult = dish.ChangeCategory(newCategoryIdResult.Value);
             if (changeCategoryResult.IsFailure)
             {
-                await Send.ValidationAsync(changeCategoryResult.Error, cancellationToken);
-                return;
+                ThrowError(
+                    message: $"Failed to update Category: {changeCategoryResult.Error}.",
+                    errorCode: ErrorCode.Validation.ToString(),
+                    statusCode: StatusCodes.Status400BadRequest);
             }
         }
 
