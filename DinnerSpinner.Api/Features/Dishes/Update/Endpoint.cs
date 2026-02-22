@@ -1,10 +1,9 @@
 ﻿using DinnerSpinner.Api.Common;
 using DinnerSpinner.Api.Data;
-using DinnerSpinner.Domain.Errors;
 using DinnerSpinner.Domain.Features.Categories;
 using DinnerSpinner.Domain.Features.Common;
+using DinnerSpinner.Domain.Shared;
 using FastEndpoints;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading;
@@ -25,7 +24,12 @@ public sealed class Endpoint(AppDbContext db)
 
     public override async Task HandleAsync(Request request, CancellationToken cancellationToken)
     {
-        // FluentValidation handles request validation before HandleAsync 
+        // How do we validate the request at this point? We have some options:
+        // 1. Manually validate here in HandleAsync (not ideal, can get messy)
+        // 2. Use FluentValidation to validate BEFORE HandleAsync runs (ideal, keeps validation separate from business logic)
+        // 3. Use a custom middleware to validate the request before it reaches the endpoint (more complex, but can be reusable across endpoints)
+        
+        // FluentValidation handles request validation BEFORE HandleAsync
         // if (request.Id <= 0)
         // {
         //     ThrowValidationError();
@@ -36,61 +40,69 @@ public sealed class Endpoint(AppDbContext db)
 
         var dish = await db.Dishes
             .FirstOrDefaultAsync(dish => dish.Id == request.Dish.Id, cancellationToken);
-
         if (dish is null)
         {
-            ThrowError(
-                message: "Dish not found.",
-                errorCode: ErrorCode.NotFound.ToString(),
-                statusCode: StatusCodes.Status404NotFound);
+            AddError(
+                property: request => request.Dish,
+                errorMessage: DomainError.Validation("Dish not found.").ToString(),
+                errorCode: ErrorCode.NotFound.ToString());
+
+            ThrowIfAnyErrors();
         }
 
         var category = await db.Categories
             .FirstOrDefaultAsync(category => category.Id == categoryId, cancellationToken);
-
         if (category is null)
         {
-            ThrowError(
-                message: "Category not found.",
-                errorCode: ErrorCode.NotFound.ToString(),
-                statusCode: StatusCodes.Status404NotFound);
+            AddError(
+                property: request => request.Dish,
+                errorMessage: DomainError.Validation("Category not found.").ToString(),
+                errorCode: ErrorCode.NotFound.ToString());
+
+            ThrowIfAnyErrors();
         }
 
-        var categoryName = category.Name.Value;
+        var categoryName = category!.Name.Value;
+
         var duplicateExists = await db.Dishes.AnyAsync(
             dish => dish.Id != request.Dish.Id &&
                  dish.Name.Value == trimmedName &&
                  dish.CategoryId.Value == categoryId,
             cancellationToken);
-
         if (duplicateExists)
         {
-            ThrowError(
-                message: "A dish with the same name already exists in this category.",
-                errorCode: ErrorCode.Conflict.ToString(),
-                statusCode: StatusCodes.Status409Conflict);
+            AddError(
+                property: request => request.Dish,
+                errorMessage: DomainError.Conflict("A dish with the same name already exists in this category.", "Name").ToString(),
+                errorCode: ErrorCode.Conflict.ToString());
+
+            ThrowIfAnyErrors();
         }
 
         var nameChanged =
-            !string.Equals(dish.Name.Value, trimmedName, StringComparison.Ordinal);
+            !string.Equals(dish!.Name.Value, trimmedName, StringComparison.Ordinal);
         if (nameChanged)
         {
             var newNameResult = Name.Create(trimmedName);
             if (newNameResult.IsFailure)
             {
-                ThrowError(
-                    message: $"Failed to create Name: {newNameResult.Value}.",
-                    errorCode: ErrorCode.Validation.ToString(),
-                    statusCode: StatusCodes.Status400BadRequest);
+                AddError(
+                    property: request => request.Dish,
+                    errorMessage: DomainError.Validation($"Name is invalid: {newNameResult.Error}.", "Name").ToString(),
+                    errorCode: ErrorCode.Conflict.ToString());
+
+                ThrowIfAnyErrors();
             }
 
             var changeNameResult = dish.ChangeName(newNameResult.Value);
             if (changeNameResult.IsFailure)
             {
-                ThrowError(
-                    message: $"Failed to update Name: {changeNameResult.Error}.",
-                    errorCode: ErrorCode.Validation.ToString(),
-                    statusCode: StatusCodes.Status400BadRequest);
+                AddError(
+                    property: request => request.Dish,
+                    errorMessage: DomainError.Validation($"Name is invalid: {changeNameResult.Error}.", "Name").ToString(),
+                    errorCode: ErrorCode.Conflict.ToString());
+
+                ThrowIfAnyErrors();
             }
         }
 
@@ -100,19 +112,23 @@ public sealed class Endpoint(AppDbContext db)
             var newCategoryIdResult = CategoryId.Create(categoryId);
             if (newCategoryIdResult.IsFailure)
             {
-                ThrowError(
-                    message: $"Failed to update Category: {newCategoryIdResult.Error}.",
-                    errorCode: ErrorCode.Validation.ToString(),
-                    statusCode: StatusCodes.Status400BadRequest);
+                AddError(
+                    property: request => request.Dish.CategoryId,
+                    errorMessage: DomainError.Validation($"Category is invalid: {newCategoryIdResult.Error}.", "Category").ToString(),
+                    errorCode: ErrorCode.Validation.ToString());
+
+                ThrowIfAnyErrors();
             }
 
             var changeCategoryResult = dish.ChangeCategory(newCategoryIdResult.Value);
             if (changeCategoryResult.IsFailure)
             {
-                ThrowError(
-                    message: $"Failed to update Category: {changeCategoryResult.Error}.",
-                    errorCode: ErrorCode.Validation.ToString(),
-                    statusCode: StatusCodes.Status400BadRequest);
+                AddError(
+                    property: request => request.Dish.CategoryId,
+                    errorMessage: DomainError.Validation($"Category is invalid: {changeCategoryResult.Error}.", "Category").ToString(),
+                    errorCode: ErrorCode.Validation.ToString());
+
+                ThrowIfAnyErrors();
             }
         }
 

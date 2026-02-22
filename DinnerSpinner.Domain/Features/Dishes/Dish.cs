@@ -1,7 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
-using DinnerSpinner.Domain.Errors;
 using DinnerSpinner.Domain.Features.Categories;
 using DinnerSpinner.Domain.Features.Common;
+using DinnerSpinner.Domain.Shared;
 using Entity = DinnerSpinner.Domain.Abstractions.Entity;
 
 namespace DinnerSpinner.Domain.Features.Dishes;
@@ -19,42 +19,40 @@ public class Dish : Entity
 
     public static Result<Dish, DomainError> Create(Name name, CategoryId categoryId)
     {
-        if (IsMissing(name))
+        if (name is null)
         {
-            return DomainError.Validation(Name.RequiredMessage, "Name");
+            return DomainError.Validation(Name.RequiredMessage);
         }
 
-        var categoryIdIsInvalid = categoryId is null || categoryId.Value <= 0;
-        if (categoryIdIsInvalid)
+        if (categoryId is null)
         {
-            return DomainError.Validation(CategoryId.InvalidMessage, "CategoryId");
+            return DomainError.Validation(CategoryId.RequiredMessage);
         }
 
-        return new Dish(name, categoryId!);
+        return new Dish(name, categoryId);
     }
 
-    public Result<Name, DomainError> ChangeName(Name changedName)
+    public Result<Dish, DomainError> ChangeName(Name changedName)
     {
-        if (IsMissing(changedName))
+        if (changedName is null)
         {
-            return DomainError.Validation(Name.RequiredMessage, "Name");
+            return DomainError.Validation(Name.RequiredMessage);
         }
 
         if (Name == changedName)
         {
-            return Name; //no-op
+            return this; //no-op
         }
 
         Name = changedName;
-        return Name;
+        return this;
     }
 
     public Result<CategoryId, DomainError> ChangeCategory(CategoryId changedCategoryId)
     {
-        var categoryIdIsInvalid = changedCategoryId is null || changedCategoryId.Value <= 0;
-        if (categoryIdIsInvalid)
+        if (changedCategoryId is null)
         {
-            return DomainError.Validation(CategoryId.InvalidMessage, "CategoryId");
+            return DomainError.Validation(CategoryId.RequiredMessage);
         }
 
         if (CategoryId == changedCategoryId)
@@ -66,11 +64,7 @@ public class Dish : Entity
         return CategoryId;
     }
 
-    public override string ToString()
-        => Name.ToString();
-
-    private static bool IsMissing(Name name) =>
-        name is null || string.IsNullOrWhiteSpace(name.Value);
+    public override string ToString() => Name.ToString();
 
     // Entity Framework requires a parameterless constructor for entity materialization
     protected Dish()

@@ -1,6 +1,6 @@
 using CSharpFunctionalExtensions;
 using DinnerSpinner.Domain.Abstractions;
-using DinnerSpinner.Domain.Errors;
+using DinnerSpinner.Domain.Shared;
 
 namespace DinnerSpinner.Domain.Features.Common;
 
@@ -18,23 +18,19 @@ public sealed record Name : IValueObject
 
     public static Result<Name, DomainError> Create(string name)
     {
-        if (string.IsNullOrWhiteSpace(name.Trim()) || name.Trim().Length == 0)
-        {
-            return DomainError.Validation(RequiredMessage, "Name");
-        }
+        if (string.IsNullOrWhiteSpace(name))
+            return DomainError.Validation(RequiredMessage);
 
-        string trimmedName = name.Trim();
-        if (trimmedName.Length < MinimumLength || trimmedName.Length > MaximumLength)
-        {
-            return DomainError.Validation(InvalidLengthMessage, "Name");
-        }
+        var trimmed = name.Trim();
 
-        return new Name(trimmedName);
+        if (trimmed.Length is < MinimumLength or > MaximumLength)
+            return DomainError.Validation(InvalidLengthMessage);
+
+        return new Name(trimmed);
     }
 
     public override string ToString() => Value;
 
     // Entity Framework requires a parameterless constructor for entity materialization
-    private Name() =>
-        Value = null!;
+    private Name() => Value = null!;
 }

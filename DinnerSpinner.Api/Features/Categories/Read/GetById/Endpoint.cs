@@ -2,9 +2,8 @@
 using System.Threading.Tasks;
 using DinnerSpinner.Api.Common;
 using DinnerSpinner.Api.Data;
-using DinnerSpinner.Domain.Errors;
+using DinnerSpinner.Domain.Shared;
 using FastEndpoints;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace DinnerSpinner.Api.Features.Categories.Read.GetById;
@@ -23,14 +22,17 @@ public sealed class Endpoint(AppDbContext db)
     {
         var category = await db.Categories
             .AsNoTracking()
-            .FirstOrDefaultAsync(c => c.Id == request.Id, cancellationToken);
+            .FirstOrDefaultAsync(category => category.Id == request.Id, cancellationToken);
 
         if (category is null)
         {
-            ThrowError(
-                message: "Category not found.",
-                errorCode: ErrorCode.NotFound.ToString(),
-                statusCode: StatusCodes.Status404NotFound);
+            AddError(
+                property: request => request,
+                errorMessage: "Category not found.",
+                severity: Severity.Error,
+                errorCode: ErrorCode.NotFound.ToString());
+
+            ThrowIfAnyErrors();
         }
 
         await Send.OkAsync(category!.ToGetByIdResponse(), cancellationToken);

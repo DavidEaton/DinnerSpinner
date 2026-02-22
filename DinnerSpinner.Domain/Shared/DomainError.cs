@@ -1,4 +1,4 @@
-namespace DinnerSpinner.Domain.Errors;
+namespace DinnerSpinner.Domain.Shared;
 
 /// <summary>
 /// Domain-level error. Not HTTP-aware. Structured enough to map to API/ProblemDetails.
@@ -7,8 +7,10 @@ public readonly record struct DomainError(
     ErrorCode Code,
     string Message,
     string? Field = null,
-    IReadOnlyDictionary<string, object?>? Meta = null)
+    IReadOnlyDictionary<string, object?>? Metadata = null)
 {
+    public static readonly DomainError None = new(ErrorCode.None, string.Empty);
+
     public static DomainError Validation(string message, string? field = null)
         => new(ErrorCode.Validation, message, field);
 

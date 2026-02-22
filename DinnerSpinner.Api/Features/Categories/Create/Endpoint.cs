@@ -2,9 +2,9 @@
 using System.Threading.Tasks;
 using DinnerSpinner.Api.Common;
 using DinnerSpinner.Api.Data;
-using DinnerSpinner.Domain.Errors;
 using DinnerSpinner.Domain.Features.Categories;
 using DinnerSpinner.Domain.Features.Common;
+using DinnerSpinner.Domain.Shared;
 using FastEndpoints;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -24,21 +24,23 @@ public class Endpoint(AppDbContext db)
 
     public override async Task HandleAsync(Request request, CancellationToken cancellationToken)
     {
-        var name = request.Name.Trim();
+        var nameTrimmed = request!.Name.Trim();
 
         var exists = await db.Categories.AnyAsync(
-            c => c.Name.Value == name,
+            category => category.Name.Value == nameTrimmed,
             cancellationToken);
-
         if (exists)
         {
-            ThrowError(
-                message: "Category already exists.",
+            AddError(
+                property: request => request,
+                errorMessage: DomainError.Conflict("Category already exists.", nameof(request.Name)).ToString(),
                 errorCode: ErrorCode.Conflict.ToString(),
-                statusCode: StatusCodes.Status409Conflict);
+                severity: Severity.Error);
+
+            ThrowIfAnyErrors(StatusCodes.Status409Conflict);
         }
 
-        var nameResult = Name.Create(name);
+        var nameResult = Name.Create(nameTrimmed);
         if (nameResult.IsFailure)
         {
             AddError(
@@ -47,19 +49,19 @@ public class Endpoint(AppDbContext db)
                 severity: Severity.Error,
                 errorCode: ErrorCode.Validation.ToString());
 
-            ThrowIfAnyErrors();
+            ThrowIfAnyErrors(StatusCodes.Status400BadRequest);
         }
 
         var categoryResult = Category.Create(nameResult.Value);
         if (categoryResult.IsFailure)
         {
             AddError(
-                property: request => request.Name,
+                property: request => request,
                 errorMessage: categoryResult.Error.ToString(),
                 severity: Severity.Error,
                 errorCode: ErrorCode.Validation.ToString());
 
-            ThrowIfAnyErrors();
+            ThrowIfAnyErrors(StatusCodes.Status400BadRequest);
         }
 
         db.Categories.Add(categoryResult.Value);
