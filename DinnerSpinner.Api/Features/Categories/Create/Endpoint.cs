@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using DinnerSpinner.Api.Common;
 using DinnerSpinner.Api.Data;
@@ -6,6 +7,7 @@ using DinnerSpinner.Domain.Features.Categories;
 using DinnerSpinner.Domain.Features.Common;
 using DinnerSpinner.Domain.Shared;
 using FastEndpoints;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,6 +19,11 @@ public class Endpoint(AppDbContext db)
     public override void Configure()
     {
         Post("/api/categories");
+        Description(builder => builder
+            .ProducesProblemDetails(400, "application/json+problem")
+            .ProducesProblemDetails(409, "application/json+problem")
+            .Produces<Response>(201, "application/json")
+            .ProducesProblemFE<InternalErrorResponse>(500)); 
         Validator<Validator>();
         AllowAnonymous();
         Summary(s => s.Summary = "Create a new category");

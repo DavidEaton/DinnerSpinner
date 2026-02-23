@@ -1,9 +1,10 @@
 using DinnerSpinner.Api.Features.Categories.Create;
 using DinnerSpinner.Domain.Features.Common;
+using FastEndpoints;
 
 namespace DinnerSpinner.Api.Features.Common;
 
-public class NameValidator : AbstractValidator<Request>
+public class NameValidator : Validator<Request>
 {
     public NameValidator() =>
         RuleFor(request => request.Name)

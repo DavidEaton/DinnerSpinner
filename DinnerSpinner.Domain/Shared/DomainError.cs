@@ -1,8 +1,5 @@
 namespace DinnerSpinner.Domain.Shared;
 
-/// <summary>
-/// Domain-level error. Not HTTP-aware. Structured enough to map to API/ProblemDetails.
-/// </summary>
 public readonly record struct DomainError(
     ErrorCode Code,
     string Message,

@@ -31,10 +31,12 @@ app.UseFastEndpoints();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwaggerGen(
-        openApiDocumentSettings => {
+        openApiDocumentSettings =>
+        {
             openApiDocumentSettings.Path = "/swagger/{documentName}/swagger.json";
         },
-        uiSettings => {
+        uiSettings =>
+        {
             uiSettings.Path = "/swagger";
             uiSettings.DocumentPath = "/swagger/{documentName}/swagger.json";
         });

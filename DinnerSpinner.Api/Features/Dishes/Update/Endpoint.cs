@@ -79,9 +79,7 @@ public sealed class Endpoint(AppDbContext db)
             ThrowIfAnyErrors();
         }
 
-        var nameChanged =
-            !string.Equals(dish!.Name.Value, trimmedName, StringComparison.Ordinal);
-        if (nameChanged)
+        if (dish!.Name.Value == trimmedName)
         {
             var newNameResult = Name.Create(trimmedName);
             if (newNameResult.IsFailure)
@@ -106,8 +104,7 @@ public sealed class Endpoint(AppDbContext db)
             }
         }
 
-        var categoryChanged = dish.CategoryId.Value != categoryId;
-        if (categoryChanged)
+        if (dish.CategoryId.Value != categoryId)
         {
             var newCategoryIdResult = CategoryId.Create(categoryId);
             if (newCategoryIdResult.IsFailure)

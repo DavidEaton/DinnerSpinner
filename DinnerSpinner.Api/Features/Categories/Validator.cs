@@ -3,8 +3,12 @@ using DinnerSpinner.Api.Features.Categories.Create;
 using DinnerSpinner.Api.Features.Common;
 using DinnerSpinner.Domain.Features.Categories;
 using DinnerSpinner.Domain.Features.Common;
+using DinnerSpinner.Domain.Shared;
 using FastEndpoints;
 using FluentValidation.Validators;
+using Result = CSharpFunctionalExtensions.Result;
+using Moopsult = DinnerSpinner.Domain.Shared.Result;
+
 
 namespace DinnerSpinner.Api.Features.Categories;
 
@@ -26,13 +30,13 @@ public class Validator : Validator<Request>
                     var nameResult = Name.Create(category.Name);
                     if (nameResult.IsFailure)
                     {
-                        return Result.Failure<Category>(nameResult.Error.ToString());
+                        return CSharpFunctionalExtensions.Result.Failure<Category>(nameResult.Error.ToString());
                     }
                     
                     var categoryResult = Category.Create(nameResult.Value);
                     return categoryResult.IsSuccess
-                        ? Result.Success(categoryResult.Value)
-                        : Result.Failure<Category>(categoryResult.Error.Message);
+                        ? CSharpFunctionalExtensions.Result.Success(categoryResult.Value)
+                        : CSharpFunctionalExtensions.Result.Failure<Category>(categoryResult.Error.Message);
                 });
     }
 }
