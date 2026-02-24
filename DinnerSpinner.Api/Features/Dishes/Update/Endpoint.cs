@@ -2,6 +2,7 @@
 using DinnerSpinner.Api.Data;
 using DinnerSpinner.Domain.Features.Categories;
 using DinnerSpinner.Domain.Features.Common;
+using DinnerSpinner.Domain.Features.Dishes;
 using DinnerSpinner.Domain.Shared;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
@@ -24,17 +25,7 @@ public sealed class Endpoint(AppDbContext db)
 
     public override async Task HandleAsync(Request request, CancellationToken cancellationToken)
     {
-        // How do we validate the request at this point? We have some options:
-        // 1. Manually validate here in HandleAsync (not ideal, can get messy)
-        // 2. Use FluentValidation to validate BEFORE HandleAsync runs (ideal, keeps validation separate from business logic)
-        // 3. Use a custom middleware to validate the request before it reaches the endpoint (more complex, but can be reusable across endpoints)
-        
-        // FluentValidation handles request validation BEFORE HandleAsync
-        // if (request.Id <= 0)
-        // {
-        //     ThrowValidationError();
-        // }
-
+        // FluentValidation handles request validation BEFORE HandleAsync, eliminating the need for manual validation logic here and keeping our endpoint focused.
         var trimmedName = request.Dish.Name.Trim();
         var categoryId = request.Dish.CategoryId;
 
@@ -44,7 +35,7 @@ public sealed class Endpoint(AppDbContext db)
         {
             AddError(
                 property: request => request.Dish,
-                errorMessage: DomainError.Validation("Dish not found.").ToString(),
+                errorMessage: Errors.NotFound(request.Dish.Id).ToString(),
                 errorCode: ErrorCode.NotFound.ToString());
 
             ThrowIfAnyErrors();
@@ -56,7 +47,7 @@ public sealed class Endpoint(AppDbContext db)
         {
             AddError(
                 property: request => request.Dish,
-                errorMessage: DomainError.Validation("Category not found.").ToString(),
+                errorMessage: Errors.ValidCategoryRequired().ToString(),
                 errorCode: ErrorCode.NotFound.ToString());
 
             ThrowIfAnyErrors();
@@ -73,7 +64,7 @@ public sealed class Endpoint(AppDbContext db)
         {
             AddError(
                 property: request => request.Dish,
-                errorMessage: DomainError.Conflict("A dish with the same name already exists in this category.", "Name").ToString(),
+                errorMessage: Errors.Conflict(request.Dish.Name, request.Dish.CategoryName).ToString(),
                 errorCode: ErrorCode.Conflict.ToString());
 
             ThrowIfAnyErrors();
@@ -86,7 +77,7 @@ public sealed class Endpoint(AppDbContext db)
             {
                 AddError(
                     property: request => request.Dish,
-                    errorMessage: DomainError.Validation($"Name is invalid: {newNameResult.Error}.", "Name").ToString(),
+                    errorMessage: Errors.ValidNameRequired().ToString(),
                     errorCode: ErrorCode.Conflict.ToString());
 
                 ThrowIfAnyErrors();
@@ -97,7 +88,7 @@ public sealed class Endpoint(AppDbContext db)
             {
                 AddError(
                     property: request => request.Dish,
-                    errorMessage: DomainError.Validation($"Name is invalid: {changeNameResult.Error}.", "Name").ToString(),
+                    errorMessage: Errors.ValidNameRequired().ToString(),
                     errorCode: ErrorCode.Conflict.ToString());
 
                 ThrowIfAnyErrors();
@@ -111,7 +102,7 @@ public sealed class Endpoint(AppDbContext db)
             {
                 AddError(
                     property: request => request.Dish.CategoryId,
-                    errorMessage: DomainError.Validation($"Category is invalid: {newCategoryIdResult.Error}.", "Category").ToString(),
+                    errorMessage: Errors.ValidCategoryRequired().ToString(),
                     errorCode: ErrorCode.Validation.ToString());
 
                 ThrowIfAnyErrors();
@@ -122,7 +113,7 @@ public sealed class Endpoint(AppDbContext db)
             {
                 AddError(
                     property: request => request.Dish.CategoryId,
-                    errorMessage: DomainError.Validation($"Category is invalid: {changeCategoryResult.Error}.", "Category").ToString(),
+                    errorMessage: Errors.ValidCategoryRequired().ToString(),
                     errorCode: ErrorCode.Validation.ToString());
 
                 ThrowIfAnyErrors();

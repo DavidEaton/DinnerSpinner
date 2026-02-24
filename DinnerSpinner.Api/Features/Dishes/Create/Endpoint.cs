@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace DinnerSpinner.Api.Features.Dishes.Create;
 
-public class Endpoint(AppDbContext db)
+public sealed class Endpoint(AppDbContext db)
     : Endpoint<Request, ApiResponse<Response>>
 {
     public override void Configure()
@@ -60,7 +60,7 @@ public class Endpoint(AppDbContext db)
         {
             AddError(
                 property: request => request,
-                errorMessage: DomainError.Conflict("A dish with the same name already exists in this category.", "Name").ToString(),
+                errorMessage: Error.Conflict("A dish with the same name already exists in this category.", "Name").ToString(),
                 errorCode: ErrorCode.Conflict.ToString(),
                 severity: Severity.Error);
 

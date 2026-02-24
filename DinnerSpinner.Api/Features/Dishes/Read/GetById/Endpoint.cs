@@ -5,6 +5,7 @@ using DinnerSpinner.Api.Common;
 using DinnerSpinner.Api.Data;
 using DinnerSpinner.Domain.Shared;
 using FastEndpoints;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace DinnerSpinner.Api.Features.Dishes.Read.GetById;
@@ -30,7 +31,7 @@ public sealed class Endpoint(AppDbContext db)
                 errorCode: ErrorCode.Validation.ToString());
 
             // emits 400 ProblemDetails (our DinnerSpinnerProblemDetails DTO)
-            ThrowIfAnyErrors();
+            ThrowIfAnyErrors(StatusCodes.Status400BadRequest);
         }
 
         var row = await db.Dishes
@@ -56,7 +57,7 @@ public sealed class Endpoint(AppDbContext db)
                     severity: Severity.Error,
                     errorCode: ErrorCode.NotFound.ToString());
 
-                ThrowIfAnyErrors();
+                ThrowIfAnyErrors(StatusCodes.Status404NotFound);
         }
 
         await Send.OkAsync(row!.ToGetByIdResponse(), cancellationToken);

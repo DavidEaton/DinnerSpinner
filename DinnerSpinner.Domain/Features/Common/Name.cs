@@ -1,5 +1,6 @@
 using CSharpFunctionalExtensions;
 using DinnerSpinner.Domain.Abstractions;
+using DinnerSpinner.Domain.Features.Dishes;
 using DinnerSpinner.Domain.Shared;
 
 namespace DinnerSpinner.Domain.Features.Common;
@@ -16,15 +17,15 @@ public sealed record Name : IValueObject
     public string Value { get; }
     private Name(string value) => Value = value;
 
-    public static Result<Name, DomainError> Create(string name)
+    public static Result<Name, Error> Create(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
-            return DomainError.Validation(RequiredMessage);
+            return Errors.ValidNameRequired();
 
         var trimmed = name.Trim();
 
         if (trimmed.Length is < MinimumLength or > MaximumLength)
-            return DomainError.Validation(InvalidLengthMessage);
+            return Errors.ValidNameRequired();
 
         return new Name(trimmed);
     }

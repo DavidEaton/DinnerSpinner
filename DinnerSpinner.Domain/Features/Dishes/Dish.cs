@@ -17,26 +17,26 @@ public class Dish : Entity
         CategoryId = categoryId;
     }
 
-    public static Result<Dish, DomainError> Create(Name name, CategoryId categoryId)
+    public static Result<Dish, Error> Create(Name name, CategoryId categoryId)
     {
         if (name is null)
         {
-            return DomainError.Validation(Name.RequiredMessage);
+            return Errors.ValidNameRequired();
         }
 
         if (categoryId is null)
         {
-            return DomainError.Validation(CategoryId.RequiredMessage);
+            return Errors.ValidCategoryRequired();
         }
 
         return new Dish(name, categoryId);
     }
 
-    public Result<Dish, DomainError> ChangeName(Name changedName)
+    public Result<Dish, Error> ChangeName(Name changedName)
     {
         if (changedName is null)
         {
-            return DomainError.Validation(Name.RequiredMessage);
+            return Errors.ValidNameRequired();
         }
 
         if (Name == changedName)
@@ -48,11 +48,11 @@ public class Dish : Entity
         return this;
     }
 
-    public Result<CategoryId, DomainError> ChangeCategory(CategoryId changedCategoryId)
+    public Result<CategoryId, Error> ChangeCategory(CategoryId changedCategoryId)
     {
         if (changedCategoryId is null)
         {
-            return DomainError.Validation(CategoryId.RequiredMessage);
+             return Errors.ValidCategoryRequired();
         }
 
         if (CategoryId == changedCategoryId)

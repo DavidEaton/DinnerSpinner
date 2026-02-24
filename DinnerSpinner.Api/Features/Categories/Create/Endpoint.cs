@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using DinnerSpinner.Api.Common;
 using DinnerSpinner.Api.Data;
@@ -7,13 +6,12 @@ using DinnerSpinner.Domain.Features.Categories;
 using DinnerSpinner.Domain.Features.Common;
 using DinnerSpinner.Domain.Shared;
 using FastEndpoints;
-using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace DinnerSpinner.Api.Features.Categories.Create;
 
-public class Endpoint(AppDbContext db)
+public sealed class Endpoint(AppDbContext db)
     : Endpoint<Request, ApiResponse<Response>>
 {
     public override void Configure()
@@ -40,7 +38,7 @@ public class Endpoint(AppDbContext db)
         {
             AddError(
                 property: request => request,
-                errorMessage: DomainError.Conflict("Category already exists.", nameof(request.Name)).ToString(),
+                errorMessage: Error.Conflict("Category already exists.", nameof(request.Name)).ToString(),
                 errorCode: ErrorCode.Conflict.ToString(),
                 severity: Severity.Error);
 

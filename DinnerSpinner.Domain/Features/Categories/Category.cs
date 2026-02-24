@@ -10,28 +10,20 @@ public class Category : Entity
     public Name Name { get; private set; }
     private Category(Name name) => Name = name;
 
-    public static Result<Category, DomainError> Create(Name name)
+    public static Result<Category, Error> Create(Name name) =>
+        name is null
+            ? Error.Validation("Category.Error.Required", Name.RequiredMessage)
+            : new Category(name);
+
+    public Result<Category, Error> ChangeName(Name changedName) =>
+        changedName is null
+            ? Error.Validation("Category.Error.Required", Name.RequiredMessage)
+            : (Name == changedName)
+                ? this // no-op
+                : Mutate(changedName);
+
+    private Result<Category, Error> Mutate(Name changedName)
     {
-        if (name is null)
-        {
-            return DomainError.Validation(Name.RequiredMessage);
-        }
-
-        return new Category(name);
-    }
-
-    public Result<Category, DomainError> ChangeName(Name changedName)
-    {
-        if (changedName is null)
-        {
-            return DomainError.Validation(Name.RequiredMessage);
-        }
-
-        if (Name == changedName)
-        {
-            return this; // no-op
-        }
-
         Name = changedName;
         return this;
     }

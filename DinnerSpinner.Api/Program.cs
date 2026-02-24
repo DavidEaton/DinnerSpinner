@@ -13,6 +13,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddFastEndpoints();
+builder.Services.AddHealthChecks();
 builder.Services.SwaggerDocument(options =>
 {
     options.DocumentSettings = settings =>
@@ -23,13 +24,18 @@ builder.Services.SwaggerDocument(options =>
     };
     options.EnableJWTBearerAuth = false;
 });
+
 // builder.Services.AddEndpointsApiExplorer();
 var app = builder.Build();
 app.UseHttpsRedirection();
+app.UseHealthChecks("/health");
 app.UseFastEndpoints();
 
 if (app.Environment.IsDevelopment())
 {
+    // Define endpoints
+    app.MapGet("/", () => "Hello from the DinnerSpinner api!");
+    
     app.UseSwaggerGen(
         openApiDocumentSettings =>
         {
