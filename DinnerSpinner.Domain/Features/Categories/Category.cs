@@ -1,5 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using DinnerSpinner.Domain.Features.Common;
+using DinnerSpinner.Domain.Features.Dishes;
 using DinnerSpinner.Domain.Shared;
 using Entity = DinnerSpinner.Domain.Abstractions.Entity;
 
@@ -12,12 +13,12 @@ public class Category : Entity
 
     public static Result<Category, Error> Create(Name name) =>
         name is null
-            ? Error.Validation("Category.Error.Required", Name.RequiredMessage)
+            ? Errors.ValidCategoryRequired()
             : new Category(name);
 
     public Result<Category, Error> ChangeName(Name changedName) =>
         changedName is null
-            ? Error.Validation("Category.Error.Required", Name.RequiredMessage)
+            ? Errors.ValidCategoryRequired()
             : (Name == changedName)
                 ? this // no-op
                 : Mutate(changedName);
