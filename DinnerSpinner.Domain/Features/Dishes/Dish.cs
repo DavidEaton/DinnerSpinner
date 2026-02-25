@@ -17,51 +17,37 @@ public class Dish : Entity
         CategoryId = categoryId;
     }
 
-    public static Result<Dish, Error> Create(Name name, CategoryId categoryId)
+    public static Result<Dish, Error> Create(Name name, CategoryId categoryId) =>
+        name is null
+            ? Errors.ValidNameRequired()
+            : (categoryId is null)
+                ? Errors.ValidCategoryRequired()
+                 : new Dish(name, categoryId);
+
+    public Result<Dish, Error> ChangeName(Name changedName) =>
+        changedName is null
+            ? Errors.ValidNameRequired()
+            : (Name == changedName)
+                ? this // no-op
+                : Mutate(changedName);
+                
+    private Result<Dish, Error> Mutate(Name changedName)
     {
-        if (name is null)
-        {
-            return Errors.ValidNameRequired();
-        }
-
-        if (categoryId is null)
-        {
-            return Errors.ValidCategoryRequired();
-        }
-
-        return new Dish(name, categoryId);
-    }
-
-    public Result<Dish, Error> ChangeName(Name changedName)
-    {
-        if (changedName is null)
-        {
-            return Errors.ValidNameRequired();
-        }
-
-        if (Name == changedName)
-        {
-            return this; //no-op
-        }
-
         Name = changedName;
         return this;
     }
 
-    public Result<CategoryId, Error> ChangeCategory(CategoryId changedCategoryId)
+    public Result<Dish, Error> ChangeCategory(CategoryId changedCategoryId) =>
+        changedCategoryId is null
+            ? Errors.ValidCategoryRequired()
+            : (CategoryId == changedCategoryId)
+                ? this // no-op
+                : Mutate(changedCategoryId);
+
+    private Result<Dish, Error> Mutate(CategoryId changedCategoryId)
     {
-        if (changedCategoryId is null)
-        {
-             return Errors.ValidCategoryRequired();
-        }
-
-        if (CategoryId == changedCategoryId)
-        {
-            return CategoryId; // no-op
-        }
-
-        CategoryId = changedCategoryId!;
-        return CategoryId;
+        CategoryId = changedCategoryId;
+        return this;
     }
 
     public override string ToString() => Name.ToString();
