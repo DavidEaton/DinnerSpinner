@@ -63,13 +63,13 @@ public class CategoryShould : IAsyncLifetime
     [InlineData("")]
     [InlineData("   ")]
     [InlineData("a")]
-    public async Task ReturnValidationProblem_On_Update_WhenNameIsInvalid(string? name)
+    public async Task ReturnValidationErrors_On_Update_WhenNameIsInvalid(string? name)
     {
         await AssertRejected(dinnerId, name, HttpStatusCode.BadRequest, "Validation");
     }
 
     [Fact]
-    public async Task ReturnValidationProblem_On_Update_WhenNameIsTooLong()
+    public async Task ReturnValidationErrors_On_Update_WhenNameIsTooLong()
     {
         await AssertRejected(dinnerId, new string('a', Name.MaximumLength + 1), HttpStatusCode.BadRequest, "Validation");
     }
@@ -90,13 +90,21 @@ public class CategoryShould : IAsyncLifetime
     {
         using var response = await client.PutAsJsonAsync($"/api/categories/{id}", new { Name = name });
         response.StatusCode.ShouldBe(status);
-        response.Content.Headers.ContentType!.MediaType.ShouldBe("application/problem+json");
-        var problem = await response.Content.ReadFromJsonAsync<JsonElement>();
-        problem.GetProperty("status").GetInt32().ShouldBe((int)status);
-        problem.GetProperty("detail").GetString().ShouldNotBeNullOrWhiteSpace();
-        var error = problem.GetProperty("errors")[0];
-        error.GetProperty("code").GetString()!.ShouldContain(errorType == "Validation" ? "Name" : errorType);
-        error.GetProperty("description").GetString().ShouldBe(problem.GetProperty("detail").GetString());
+        var payload = await response.Content.ReadFromJsonAsync<JsonElement>();
+        if (status == HttpStatusCode.BadRequest)
+        {
+            payload.GetProperty("statusCode").GetInt32().ShouldBe(400);
+            payload.GetProperty("errors").GetProperty("name")[0].GetString().ShouldNotBeNullOrWhiteSpace();
+        }
+        else
+        {
+            response.Content.Headers.ContentType!.MediaType.ShouldBe("application/problem+json");
+            payload.GetProperty("status").GetInt32().ShouldBe((int)status);
+            payload.GetProperty("detail").GetString().ShouldNotBeNullOrWhiteSpace();
+            var error = payload.GetProperty("errors")[0];
+            error.GetProperty("code").GetString()!.ShouldContain(errorType);
+            error.GetProperty("description").GetString().ShouldBe(payload.GetProperty("detail").GetString());
+        }
         using var scope = factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var names = await db.Categories.OrderBy(category => category.Id).Select(category => category.Name.Value).ToArrayAsync();

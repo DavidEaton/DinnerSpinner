@@ -81,12 +81,13 @@ The API layer translates domain results into consistent HTTP responses:
 * `404`  missing resources
 * `409`  conflicts (e.g., duplicate dish names within a category)
 
-Category updates validate names through the domain factory and compose mutation
-results with `Bind`/`Match`. Failures use the shared `Error` factories and
-`ToProblemDetails` adapter, which delegates serialization to ASP.NET Core's
-`Results.Problem`. This endpoint returns `application/problem+json` for invalid
-names, missing categories, and duplicate names, including the domain error code
-and description. Other FastEndpoints validators retain their existing behavior.
+Category update requests are validated by their FastEndpoints validator, which
+uses the domain name factory and reports failures without unwrapping failed
+results. Invalid names receive the standard FastEndpoints validation response.
+The endpoint materializes the validated name and handles mutation results with
+`Match`. Missing categories and duplicate names use the shared `Error` factories
+and `ToProblemDetails` adapter, backed by ASP.NET Core's `Results.Problem`, to
+return `application/problem+json` with the domain error code and description.
 
 This approach keeps:
 

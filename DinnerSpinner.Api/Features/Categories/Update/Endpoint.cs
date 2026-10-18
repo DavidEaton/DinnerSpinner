@@ -16,18 +16,15 @@ public sealed class Endpoint(AppDbContext db)
     public override void Configure()
     {
         Put("/api/categories/{id:int}");
+        Validator<Validator>();
         AllowAnonymous();
         Summary(s => s.Summary = "Update a category by id");
     }
 
     public override async Task HandleAsync(Request request, CancellationToken cancellationToken)
     {
-        var name = Name.Create(request.Name);
-        if (name.IsFailure)
-        {
-            await Send.ResultAsync(name.Error.ToProblemDetails());
-            return;
-        }
+        // FastEndpoints has validated the request before invoking this handler.
+        var name = Name.Create(request.Name).Value;
 
         var id = Route<int>("id");
         var category = await db.Categories
@@ -41,18 +38,18 @@ public sealed class Endpoint(AppDbContext db)
         }
 
         var duplicateExists = await db.Categories.AnyAsync(
-            other => other.Id != id && other.Name.Value == name.Value.Value,
+            other => other.Id != id && other.Name.Value == name.Value,
             cancellationToken);
         if (duplicateExists)
         {
             await Send.ResultAsync(Error.Conflict(
                 "Category.Errors.Conflict",
-                $"A category named '{name.Value.Value}' already exists.").ToProblemDetails());
+                $"A category named '{name.Value}' already exists.").ToProblemDetails());
             return;
         }
 
-        var changed = category.Name != name.Value;
-        await name.Bind(category.ChangeName).Match(
+        var changed = category.Name != name;
+        await category.ChangeName(name).Match(
             async updated =>
             {
                 if (changed)
