@@ -23,9 +23,9 @@ public partial class DishShould
     }
 
     [Fact]
-    public void PreventExternalMutation_On_CategoryId()
+    public void PreventExternalMutation_On_Category()
     {
-        var property = typeof(Dish).GetProperty(nameof(Dish.CategoryId))!;
+        var property = typeof(Dish).GetProperty(nameof(Dish.Category))!;
 
         property.GetMethod!.IsPublic.ShouldBeTrue();
         if (property.SetMethod is { } setter)

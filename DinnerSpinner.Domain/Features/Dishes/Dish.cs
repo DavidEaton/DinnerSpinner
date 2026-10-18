@@ -9,20 +9,20 @@ namespace DinnerSpinner.Domain.Features.Dishes;
 public class Dish : Entity
 {
     public Name Name { get; private set; }
-    public CategoryId CategoryId { get; private set; }
+    public Category Category { get; private set; }
 
-    private Dish(Name name, CategoryId categoryId)
+    private Dish(Name name, Category category)
     {
         Name = name;
-        CategoryId = categoryId;
+        Category = category;
     }
 
-    public static Result<Dish, Error> Create(Name name, CategoryId categoryId) =>
+    public static Result<Dish, Error> Create(Name name, Category category) =>
         name is null
             ? Errors.ValidNameRequired()
-            : (categoryId is null)
+            : (category is null)
                 ? Errors.ValidCategoryRequired()
-                 : new Dish(name, categoryId);
+                 : new Dish(name, category);
 
     public Result<Dish, Error> ChangeName(Name changedName) =>
         changedName is null
@@ -37,16 +37,16 @@ public class Dish : Entity
         return this;
     }
 
-    public Result<Dish, Error> ChangeCategory(CategoryId changedCategoryId) =>
-        changedCategoryId is null
+    public Result<Dish, Error> ChangeCategory(Category changedCategory) =>
+        changedCategory is null
             ? Errors.ValidCategoryRequired()
-            : (CategoryId == changedCategoryId)
+            : (Category == changedCategory)
                 ? this // no-op
-                : Mutate(changedCategoryId);
+                : Mutate(changedCategory);
 
-    private Result<Dish, Error> Mutate(CategoryId changedCategoryId)
+    private Result<Dish, Error> Mutate(Category changedCategory)
     {
-        CategoryId = changedCategoryId;
+        Category = changedCategory;
         return this;
     }
 
@@ -57,7 +57,7 @@ public class Dish : Entity
     {
         //Non-nullable property 'Name' must contain a non-null value when exiting constructor.
         Name = null!;
-        // Non-nullable property 'CategoryId' must contain a non-null value when exiting constructor.
-        CategoryId = null!;
+        // Non-nullable property 'Category' must contain a non-null value when exiting constructor.
+        Category = null!;
     }
 }

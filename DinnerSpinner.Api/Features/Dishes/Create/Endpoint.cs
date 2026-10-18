@@ -1,6 +1,5 @@
 ﻿using DinnerSpinner.Api.Common;
 using DinnerSpinner.Api.Data;
-using DinnerSpinner.Domain.Features.Categories;
 using DinnerSpinner.Domain.Features.Common;
 using DinnerSpinner.Domain.Features.Dishes;
 using DinnerSpinner.Domain.Shared;
@@ -54,7 +53,7 @@ public sealed class Endpoint(AppDbContext db)
             dish =>
             dish.Name.Value == trimmedName
             &&
-            dish.CategoryId.Value == categoryId,
+            dish.Category.Id == categoryId,
             cancellationToken);
         if (duplicateExists)
         {
@@ -79,21 +78,9 @@ public sealed class Endpoint(AppDbContext db)
             ThrowIfAnyErrors();
         }
 
-        var categoryIdResult = CategoryId.Create(categoryId);
-        if (categoryIdResult.IsFailure)
-        {
-            AddError(
-                property: request => request.CategoryId,
-                errorMessage: categoryIdResult.Error.ToString(),
-                severity: Severity.Error,
-                errorCode: ErrorCode.Validation.ToString());
-
-            ThrowIfAnyErrors();
-        }
-
         var dishResult = Dish.Create(
             nameResult.Value,
-            categoryIdResult.Value);
+            category!);
         if (dishResult.IsFailure)
         {
             AddError(
@@ -109,7 +96,7 @@ public sealed class Endpoint(AppDbContext db)
         await db.SaveChangesAsync(cancellationToken);
 
         await Send.CreatedAsync(
-            dishResult.Value.ToCreateResponse(category!.Name.Value),
+            dishResult.Value.ToCreateResponse(),
             cancellationToken);
     }
 }

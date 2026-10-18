@@ -36,18 +36,13 @@ public sealed class Endpoint(AppDbContext db)
 
         var row = await db.Dishes
             .AsNoTracking()
-            .Join(
-                db.Categories.AsNoTracking(),
-                dish => dish.CategoryId.Value,
-                category => category.Id,
-                (dish, category) => new DishReadRow(
-                    dish.Id,
-                    dish.Name.Value,
-                    dish.CategoryId.Value,
-                    category.Name.Value
-                )
-            )
-            .SingleOrDefaultAsync(row => row.Id == request.Id, cancellationToken);
+            .Where(dish => dish.Id == request.Id)
+            .Select(dish => new DishReadRow(
+                dish.Id,
+                dish.Name.Value,
+                dish.Category.Id,
+                dish.Category.Name.Value))
+            .SingleOrDefaultAsync(cancellationToken);
 
         if (row is null)
         {

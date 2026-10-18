@@ -1,8 +1,8 @@
 # DinnerSpinner.Tests
 
-This xUnit/Shouldly project verifies observable domain rules and references Domain.
-Add an API reference when testing persistence converters. Database-backed aggregate
-round trips require active aggregate mappings.
+This xUnit/Shouldly project verifies observable domain rules, SQLite persistence,
+and dish HTTP behavior. It references Domain and API; persistence tests use
+isolated in-memory SQLite databases, and HTTP tests host the API in memory.
 
 ```sh
 dotnet test DinnerSpinner.Tests/DinnerSpinner.Tests.csproj
