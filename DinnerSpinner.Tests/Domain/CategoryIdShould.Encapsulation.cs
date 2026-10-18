@@ -1,7 +1,5 @@
 using System.Reflection;
-using DinnerSpinner.Domain.Features.Common;
 using DinnerSpinner.Domain.Features.Categories;
-using DinnerSpinner.Domain.Features.Dishes;
 
 namespace DinnerSpinner.Tests.Domain;
 

@@ -6,7 +6,6 @@ using DinnerSpinner.Domain.Features.Dishes;
 using DinnerSpinner.Domain.Shared;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 
