@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using DinnerSpinner.Domain.Shared;
 using Microsoft.AspNetCore.Http;
 using IResult = Microsoft.AspNetCore.Http.IResult;
-using Result = DinnerSpinner.Domain.Shared.Result;
+using Result = DinnerSpinner.Domain.Abstractions.Result;
 
 namespace DinnerSpinner.Api.Common;
 

@@ -2,6 +2,7 @@
 using DinnerSpinner.Api.Features.Common;
 using DinnerSpinner.Domain.Features.Categories;
 using DinnerSpinner.Domain.Features.Common;
+using DinnerSpinner.Domain.Features.Dishes;
 using FastEndpoints;
 using Result = CSharpFunctionalExtensions.Result;
 
@@ -17,7 +18,7 @@ public class Validator : Validator<Request>
                 {
                     if (category.Name is null)
                     {
-                        return Result.Failure<Category>(Name.RequiredMessage);
+                        return Result.Failure<Category>(Errors.ValidCategoryRequired().ToString());
                     }
 
                     var nameResult = Name.Create(category.Name);

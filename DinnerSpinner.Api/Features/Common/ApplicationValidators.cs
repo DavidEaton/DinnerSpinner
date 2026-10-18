@@ -1,6 +1,7 @@
 using System;
-using CSharpFunctionalExtensions;
+// using CSharpFunctionalExtensions;
 using DinnerSpinner.Domain.Abstractions;
+using FluentValidation.Results;
 using Entity = DinnerSpinner.Domain.Abstractions.Entity;
 
 namespace DinnerSpinner.Api.Features.Common
@@ -24,7 +25,8 @@ namespace DinnerSpinner.Api.Features.Common
 
                     if (result.IsFailure)
                     {
-                        context.AddFailure(result.Error);
+                        context.AddFailure(new ValidationFailure(
+                            context.PropertyPath, result.Error.ToString()));
                     }
                 });
 
@@ -43,7 +45,8 @@ namespace DinnerSpinner.Api.Features.Common
 
                     if (result.IsFailure)
                     {
-                        context.AddFailure(result.Error);
+                        context.AddFailure(new ValidationFailure(
+                            context.PropertyPath, result.Error.ToString()));
                     }
                 });
     }

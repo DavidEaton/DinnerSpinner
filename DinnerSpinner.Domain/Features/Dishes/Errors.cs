@@ -1,3 +1,4 @@
+using DinnerSpinner.Domain.Features.Common;
 using DinnerSpinner.Domain.Shared;
 
 namespace DinnerSpinner.Domain.Features.Dishes
@@ -18,7 +19,7 @@ namespace DinnerSpinner.Domain.Features.Dishes
             => Error.Validation(
                 code: "Dish.Errors.ValidCategoryRequired",
                 description: "Category is required.");
-                
+
         public static Error NotFound(int id)
              => Error.NotFound(
                 code: "Dish.Errors.NotFound",
@@ -28,5 +29,10 @@ namespace DinnerSpinner.Domain.Features.Dishes
             => Error.Conflict(
                 code: "Dish.Errors.Conflict",
                 description: $"Dish name '{name}' in category '{category}' is taken.");
+
+        public static Error ValidLengthName(int mnimumLength, int maximumLength)
+             => Error.Validation(
+                 code: "Dish.Errors.ValidLengthName",
+                 description: $"Name must be between {mnimumLength} and {maximumLength} characters in length");
     }
 }

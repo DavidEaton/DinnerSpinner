@@ -22,5 +22,8 @@ namespace DinnerSpinner.Domain.Shared
 
         public static Error Failure(string code, string description) =>
             new(code, description, ErrorType.Failure);
+
+        public static Error Required(string code, string description) =>
+            new(code, description, ErrorType.Required);
     };
 }
