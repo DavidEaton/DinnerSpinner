@@ -4,7 +4,7 @@ using DinnerSpinner.Domain.Features.Common;
 
 namespace DinnerSpinner.Tests.Domain;
 
-public class CategoryShould
+public partial class CategoryShould
 {
     [Fact]
     public void RetainName_On_Create_WhenValid()

@@ -4,7 +4,7 @@ using DinnerSpinner.Domain.Features.Dishes;
 
 namespace DinnerSpinner.Tests.Domain;
 
-public class DishShould
+public partial class DishShould
 {
     [Fact]
     public void RetainValues_On_Create_WhenValid()

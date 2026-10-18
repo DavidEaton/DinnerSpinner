@@ -3,7 +3,7 @@ using DinnerSpinner.Domain.Features.Common;
 
 namespace DinnerSpinner.Tests.Domain;
 
-public class NameShould
+public partial class NameShould
 {
     [Theory]
     [InlineData(null)]

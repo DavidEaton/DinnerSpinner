@@ -3,7 +3,7 @@ using DinnerSpinner.Domain.Features.Categories;
 
 namespace DinnerSpinner.Tests.Domain;
 
-public class CategoryIdShould
+public partial class CategoryIdShould
 {
     [Theory]
     [InlineData(int.MinValue)]

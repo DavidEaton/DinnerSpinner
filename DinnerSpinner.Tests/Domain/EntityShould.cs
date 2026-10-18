@@ -8,6 +8,16 @@ namespace DinnerSpinner.Tests.Domain;
 public class EntityShould
 {
     [Fact]
+    public void RestrictIdentityAssignment_On_Id()
+    {
+        typeof(Entity).IsAbstract.ShouldBeTrue();
+        var id = typeof(Entity).GetProperty(nameof(Entity.Id))!;
+
+        id.GetMethod!.IsPublic.ShouldBeTrue();
+        id.SetMethod!.IsFamily.ShouldBeTrue();
+    }
+
+    [Fact]
     public void EqualSameReference_On_Equals_WhenTransient()
     {
         Entity entity = Category.Create(Name.Create("Dinner").Value).Value;
