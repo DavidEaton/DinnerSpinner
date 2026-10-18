@@ -15,6 +15,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DinnerSpinner.Domain", "DinnerSpinner.Domain\DinnerSpinner.Domain.csproj", "{D0CF4C33-DA35-4AF8-A0FC-0699B14168EB}"
 EndProject
 
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DinnerSpinner.Tests", "DinnerSpinner.Tests\DinnerSpinner.Tests.csproj", "{F6DF47CE-AB23-4B6B-AC38-7B9A773B9714}"
+EndProject
+
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +28,18 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F6DF47CE-AB23-4B6B-AC38-7B9A773B9714}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F6DF47CE-AB23-4B6B-AC38-7B9A773B9714}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F6DF47CE-AB23-4B6B-AC38-7B9A773B9714}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F6DF47CE-AB23-4B6B-AC38-7B9A773B9714}.Debug|x64.Build.0 = Debug|Any CPU
+		{F6DF47CE-AB23-4B6B-AC38-7B9A773B9714}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F6DF47CE-AB23-4B6B-AC38-7B9A773B9714}.Debug|x86.Build.0 = Debug|Any CPU
+		{F6DF47CE-AB23-4B6B-AC38-7B9A773B9714}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F6DF47CE-AB23-4B6B-AC38-7B9A773B9714}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F6DF47CE-AB23-4B6B-AC38-7B9A773B9714}.Release|x64.ActiveCfg = Release|Any CPU
+		{F6DF47CE-AB23-4B6B-AC38-7B9A773B9714}.Release|x64.Build.0 = Release|Any CPU
+		{F6DF47CE-AB23-4B6B-AC38-7B9A773B9714}.Release|x86.ActiveCfg = Release|Any CPU
+		{F6DF47CE-AB23-4B6B-AC38-7B9A773B9714}.Release|x86.Build.0 = Release|Any CPU
 		{B64EE782-A564-46A4-AB1E-D0230CC268F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B64EE782-A564-46A4-AB1E-D0230CC268F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B64EE782-A564-46A4-AB1E-D0230CC268F8}.Debug|x64.ActiveCfg = Debug|Any CPU

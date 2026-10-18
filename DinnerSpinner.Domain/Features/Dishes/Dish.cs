@@ -27,7 +27,7 @@ public class Dish : Entity
         if (IsMissing(name))
             return Fail(Name.RequiredMessage);
 
-        if (categoryId.Value <= 0)
+        if (categoryId is null || categoryId.Value <= 0)
             return Fail(CategoryId.InvalidMessage);
 
         return Result.Success(new Dish(name, categoryId));
@@ -56,6 +56,9 @@ public class Dish : Entity
 
     public Result<CategoryId> ChangeCategory(CategoryId changedCategoryId)
     {
+        if (changedCategoryId is null || changedCategoryId.Value <= 0)
+            return Result.Failure<CategoryId>(CategoryId.InvalidMessage);
+
         if (CategoryId == changedCategoryId)
         {
             return Result.Success(CategoryId); // no-op
