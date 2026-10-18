@@ -1,9 +1,9 @@
-﻿using DinnerSpinner.Api.Common;
+using CSharpFunctionalExtensions;
+using DinnerSpinner.Api.Common;
 using DinnerSpinner.Api.Data;
 using DinnerSpinner.Domain.Features.Common;
 using DinnerSpinner.Domain.Shared;
 using FastEndpoints;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,74 +16,50 @@ public sealed class Endpoint(AppDbContext db)
     public override void Configure()
     {
         Put("/api/categories/{id:int}");
-        Validator<Validator>();
         AllowAnonymous();
         Summary(s => s.Summary = "Update a category by id");
     }
+
     public override async Task HandleAsync(Request request, CancellationToken cancellationToken)
     {
-        var nameTrimmed = request!.Name.Trim();
-        var id = request!.Id;
-
-        var categoryFromDatabase = await db.Categories
-            .FirstOrDefaultAsync(category => category.Id == id, cancellationToken);
-        if (categoryFromDatabase is null)
+        var name = Name.Create(request.Name);
+        if (name.IsFailure)
         {
-            AddError(
-                property: request => request.Id,
-                errorMessage: "Category not found.",
-                severity: Severity.Error,
-                errorCode: ErrorCode.NotFound.ToString());
+            await Send.ResultAsync(name.Error.ToProblemDetails());
+            return;
+        }
 
-            ThrowIfAnyErrors(StatusCodes.Status404NotFound);
+        var id = Route<int>("id");
+        var category = await db.Categories
+            .FirstOrDefaultAsync(category => category.Id == id, cancellationToken);
+        if (category is null)
+        {
+            await Send.ResultAsync(Error.NotFound(
+                "Category.Errors.NotFound",
+                $"Category with Id '{id}' was not found.").ToProblemDetails());
+            return;
         }
 
         var duplicateExists = await db.Categories.AnyAsync(
-            category =>
-            category.Id != id
-            &&
-            category.Name.Value == nameTrimmed,
+            other => other.Id != id && other.Name.Value == name.Value.Value,
             cancellationToken);
         if (duplicateExists)
         {
-            AddError(
-                property: request => request,
-                errorMessage: $"A category named '{nameTrimmed}' already exists.",
-                errorCode: ErrorCode.Conflict.ToString(),
-                severity: Severity.Error);
-
-            ThrowIfAnyErrors(StatusCodes.Status409Conflict);
+            await Send.ResultAsync(Error.Conflict(
+                "Category.Errors.Conflict",
+                $"A category named '{name.Value.Value}' already exists.").ToProblemDetails());
+            return;
         }
 
-        var nameResult = Name.Create(nameTrimmed);
-        if (nameResult.IsFailure)
-        {
-            AddError(
-                property: request => request.Name,
-                errorMessage: nameResult.Error.ToString(),
-                severity: Severity.Error,
-                errorCode: ErrorCode.Validation.ToString());
-
-            ThrowIfAnyErrors(StatusCodes.Status400BadRequest);
-        }
-
-        if (categoryFromDatabase!.Name != nameResult.Value)
-        {
-            var changeNameResult = categoryFromDatabase.ChangeName(nameResult.Value);
-            if (changeNameResult.IsFailure)
+        var changed = category.Name != name.Value;
+        await name.Bind(category.ChangeName).Match(
+            async updated =>
             {
-                AddError(
-                    property: request => request.Name,
-                    errorMessage: changeNameResult.Error.ToString(),
-                    severity: Severity.Error,
-                    errorCode: ErrorCode.Validation.ToString());
+                if (changed)
+                    await db.SaveChangesAsync(cancellationToken);
 
-                ThrowIfAnyErrors(StatusCodes.Status400BadRequest);
-            }
-            
-            await db.SaveChangesAsync(cancellationToken);
-        }
-
-        await Send.OkAsync(categoryFromDatabase!.ToUpdateResponse(), cancellationToken);
+                await Send.OkAsync(updated.ToUpdateResponse(), cancellationToken);
+            },
+            error => Send.ResultAsync(error.ToProblemDetails()));
     }
 }
