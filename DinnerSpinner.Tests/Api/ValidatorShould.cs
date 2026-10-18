@@ -23,6 +23,22 @@ public class ValidatorShould
     }
 
     [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("a")]
+    public void ReturnDomainError_On_NameValidation_WhenNameIsInvalid(string? name)
+    {
+        var expected = Name.Create(name!).Error;
+        var result = new DinnerSpinner.Api.Features.Common.NameValidator().Validate(
+            new DinnerSpinner.Api.Features.Categories.Create.Request { Name = name! });
+
+        result.IsValid.ShouldBeFalse();
+        var error = result.Errors.ShouldHaveSingleItem();
+        error.ErrorCode.ShouldBe(expected.Code);
+        error.ErrorMessage.ShouldBe(expected.Description);
+    }
+
+    [Theory]
     [InlineData(Name.MinimumLength)]
     [InlineData(Name.MaximumLength)]
     public void AcceptNormalizedName_On_Validate_WhenLengthIsWithinBounds(int length)
