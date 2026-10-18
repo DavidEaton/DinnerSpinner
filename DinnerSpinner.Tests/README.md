@@ -1,8 +1,8 @@
 # DinnerSpinner.Tests
 
-This xUnit/Shouldly project verifies observable domain rules and optional-value
-persistence converters. It references Domain and API. Database-backed aggregate
-round trips are not implemented because aggregate mappings are not yet active.
+This xUnit/Shouldly project verifies observable domain rules and references Domain.
+Add an API reference when testing persistence converters. Database-backed aggregate
+round trips require active aggregate mappings.
 
 ```sh
 dotnet test DinnerSpinner.Tests/DinnerSpinner.Tests.csproj
