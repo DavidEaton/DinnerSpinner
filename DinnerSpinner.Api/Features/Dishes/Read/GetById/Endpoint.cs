@@ -3,7 +3,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using DinnerSpinner.Api.Common;
 using DinnerSpinner.Api.Data;
+using DinnerSpinner.Domain.Shared;
 using FastEndpoints;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace DinnerSpinner.Api.Features.Dishes.Read.GetById;
@@ -20,7 +22,17 @@ public sealed class Endpoint(AppDbContext db)
 
     public override async Task HandleAsync(Request request, CancellationToken cancellationToken)
     {
-        var id = Route<int>("id");
+        if (request.Id <= 0)
+        {
+            AddError(
+                property: request => request.Id,
+                errorMessage: "GetBy Id must be a positive integer.",
+                severity: Severity.Error,
+                errorCode: ErrorCode.Validation.ToString());
+
+            // emits 400 ProblemDetails (our DinnerSpinnerProblemDetails DTO)
+            ThrowIfAnyErrors(StatusCodes.Status400BadRequest);
+        }
 
         var row = await db.Dishes
             .AsNoTracking()
@@ -35,14 +47,19 @@ public sealed class Endpoint(AppDbContext db)
                     category.Name.Value
                 )
             )
-            .SingleOrDefaultAsync(row => row.Id == id, cancellationToken);
+            .SingleOrDefaultAsync(row => row.Id == request.Id, cancellationToken);
 
         if (row is null)
         {
-            await Send.NotFoundAsync("Dish not found.", cancellationToken);
-            return;
+                AddError(
+                    property: request => request,
+                    errorMessage: "Dish not found.",
+                    severity: Severity.Error,
+                    errorCode: ErrorCode.NotFound.ToString());
+
+                ThrowIfAnyErrors(StatusCodes.Status404NotFound);
         }
 
-        await Send.OkAsync(row.ToGetByIdResponse(), cancellationToken);
+        await Send.OkAsync(row!.ToGetByIdResponse(), cancellationToken);
     }
 }

@@ -2,6 +2,8 @@
 using DinnerSpinner.Api.Data;
 using DinnerSpinner.Domain.Features.Categories;
 using DinnerSpinner.Domain.Features.Common;
+using DinnerSpinner.Domain.Features.Dishes;
+using DinnerSpinner.Domain.Shared;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -23,91 +25,98 @@ public sealed class Endpoint(AppDbContext db)
 
     public override async Task HandleAsync(Request request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.Dish.Name))
-        {
-            await Send.ValidationAsync("Dish name is required.", cancellationToken);
-            return;
-        }
-
-        if (request.Dish.CategoryId <= 0)
-        {
-            await Send.ValidationAsync("CategoryId must be a positive integer.", cancellationToken);
-            return;
-        }
-        
-        var id = Route<int>("id");
-        var name = request.Dish.Name.Trim();
+        // FluentValidation handles request validation BEFORE HandleAsync, eliminating the need for manual validation logic here and keeping our endpoint focused.
+        var trimmedName = request.Dish.Name.Trim();
         var categoryId = request.Dish.CategoryId;
 
         var dish = await db.Dishes
-            .FirstOrDefaultAsync(d => d.Id == id, cancellationToken);
-
+            .FirstOrDefaultAsync(dish => dish.Id == request.Dish.Id, cancellationToken);
         if (dish is null)
         {
-            await Send.NotFoundAsync("Dish not found.", cancellationToken);
-            return;
+            AddError(
+                property: request => request.Dish,
+                errorMessage: Errors.NotFound(request.Dish.Id).ToString(),
+                errorCode: ErrorCode.NotFound.ToString());
+
+            ThrowIfAnyErrors();
         }
 
         var category = await db.Categories
-            .FirstOrDefaultAsync(c => c.Id == categoryId, cancellationToken);
-
+            .FirstOrDefaultAsync(category => category.Id == categoryId, cancellationToken);
         if (category is null)
         {
-            await Send.NotFoundAsync("Category not found.", cancellationToken);
-            return;
+            AddError(
+                property: request => request.Dish,
+                errorMessage: Errors.ValidCategoryRequired().ToString(),
+                errorCode: ErrorCode.NotFound.ToString());
+
+            ThrowIfAnyErrors();
         }
 
-        var categoryName = category.Name.Value;
-        var duplicateExists = await db.Dishes.AnyAsync(
-            d => d.Id != id &&
-                 d.Name.Value == name &&
-                 d.CategoryId.Value == categoryId,
-            cancellationToken);
+        var categoryName = category!.Name.Value;
 
+        var duplicateExists = await db.Dishes.AnyAsync(
+            dish => dish.Id != request.Dish.Id &&
+                 dish.Name.Value == trimmedName &&
+                 dish.CategoryId.Value == categoryId,
+            cancellationToken);
         if (duplicateExists)
         {
-            await Send.ConflictAsync(
-                "A dish with the same name already exists in this category.",
-                cancellationToken);
-            return;
+            AddError(
+                property: request => request.Dish,
+                errorMessage: Errors.Conflict(request.Dish.Name, request.Dish.CategoryName).ToString(),
+                errorCode: ErrorCode.Conflict.ToString());
+
+            ThrowIfAnyErrors();
         }
 
-        var nameChanged =
-            !string.Equals(dish.Name.Value, name, StringComparison.Ordinal);
-
-        var categoryChanged = dish.CategoryId.Value != categoryId;
-
-        if (nameChanged)
+        if (dish!.Name.Value == trimmedName)
         {
-            var newNameResult = Name.Create(name);
+            var newNameResult = Name.Create(trimmedName);
             if (newNameResult.IsFailure)
             {
-                await Send.ValidationAsync(newNameResult.Error, cancellationToken);
-                return;
+                AddError(
+                    property: request => request.Dish,
+                    errorMessage: Errors.ValidNameRequired().ToString(),
+                    errorCode: ErrorCode.Conflict.ToString());
+
+                ThrowIfAnyErrors();
             }
 
-            var renameResult = dish.ChangeName(newNameResult.Value);
-            if (renameResult.IsFailure)
+            var changeNameResult = dish.ChangeName(newNameResult.Value);
+            if (changeNameResult.IsFailure)
             {
-                await Send.ValidationAsync(renameResult.Error, cancellationToken);
-                return;
+                AddError(
+                    property: request => request.Dish,
+                    errorMessage: Errors.ValidNameRequired().ToString(),
+                    errorCode: ErrorCode.Conflict.ToString());
+
+                ThrowIfAnyErrors();
             }
         }
 
-        if (categoryChanged)
+        if (dish.CategoryId.Value != categoryId)
         {
             var newCategoryIdResult = CategoryId.Create(categoryId);
             if (newCategoryIdResult.IsFailure)
             {
-                await Send.ValidationAsync(newCategoryIdResult.Error, cancellationToken);
-                return;
+                AddError(
+                    property: request => request.Dish.CategoryId,
+                    errorMessage: Errors.ValidCategoryRequired().ToString(),
+                    errorCode: ErrorCode.Validation.ToString());
+
+                ThrowIfAnyErrors();
             }
 
             var changeCategoryResult = dish.ChangeCategory(newCategoryIdResult.Value);
             if (changeCategoryResult.IsFailure)
             {
-                await Send.ValidationAsync(changeCategoryResult.Error, cancellationToken);
-                return;
+                AddError(
+                    property: request => request.Dish.CategoryId,
+                    errorMessage: Errors.ValidCategoryRequired().ToString(),
+                    errorCode: ErrorCode.Validation.ToString());
+
+                ThrowIfAnyErrors();
             }
         }
 

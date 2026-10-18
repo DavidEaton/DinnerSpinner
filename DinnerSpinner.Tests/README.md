@@ -1,21 +1,37 @@
-# Domain unit tests
+# DinnerSpinner.Tests
 
-Run with the .NET 10 SDK from the repository root:
+This xUnit/Shouldly project verifies observable domain rules and references Domain.
+Add an API reference when testing persistence converters. Database-backed aggregate
+round trips require active aggregate mappings.
 
 ```sh
-dotnet test DinnerSpinner.Tests/DinnerSpinner.Tests.csproj --configuration Release
+dotnet test DinnerSpinner.Tests/DinnerSpinner.Tests.csproj
 ```
 
-The xUnit tests use Shouldly assertions and reference only the domain project.
-They require no database, API host, or external services.
+Use the SDK described in the [root README](../README.md).
 
-Coverage includes factory validation and normalization, boundary values, value
-object equality, entity identity, intentional state changes, no-op changes,
-rejected changes preserving state, and constructor/property encapsulation.
-Reflection is used only to inspect public API visibility. Protected constructors
-and identity setters remain available for persistence; test subclasses exercise
-identity equality through that supported access. The tests do not manufacture
-invalid value objects through reflection or persistence materialization.
+## Test conventions
 
-`Dish` must reject a null category both during creation and category changes.
-Those regression cases ensure a rejected update leaves the existing state intact.
+Use short, outcome-first names for new and changed tests; some older names vary:
+
+```text
+{DomainType}Should.{ExpectedBehavior}_On_{Member}_{Scenario}
+EmploymentPeriodShould.ReturnNewValueAndPreserveOriginal_On_ReplaceExited_WhenDateIsValid
+```
+
+- Name classes `{DomainType}Should`; use PascalCase within phrases and underscores
+  between them. Match the production member name when practical.
+- Put observable behavior first, then a precise `When...` scenario if it adds
+  value. Use a clearer connector such as `After` when needed.
+- Test concrete types and one behavior at a time; avoid implementation details.
+- Cover normalization, boundaries, equality, present/absent optional values, and
+  invalid inputs. Assert unchanged aggregate state after failure and unchanged
+  original values after immutable transformations.
+- Cover collection duplicates, primary cardinality, and membership snapshots.
+  Use theories for boundaries and fixed caller-supplied dates where supported.
+- Add provider-backed round-trip and corrupt-row tests when aggregate persistence
+  is introduced. Converter tests alone do not prove aggregate persistence works.
+
+Use code, existing tests, and coverage reports to find gaps. Keep test guidance
+about behavior and conventions rather than maintaining duplicate coverage lists
+or historical test counts.

@@ -4,10 +4,10 @@ using DinnerSpinner.Domain.Features.Dishes;
 
 namespace DinnerSpinner.Tests.Domain;
 
-public class DishTests
+public class DishShould
 {
     [Fact]
-    public void Create_retains_valid_values_and_starts_without_persisted_identity()
+    public void RetainValues_On_Create_WhenValid()
     {
         var name = Name.Create("Soup").Value;
         var id = CategoryId.Create(1).Value;
@@ -24,25 +24,25 @@ public class DishTests
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
-    public void Create_rejects_a_missing_name_before_validating_category(bool hasCategory)
+    public void RejectMissingNameFirst_On_Create_WhenNull(bool hasCategory)
     {
         var result = Dish.Create(null!, hasCategory ? CategoryId.Create(1).Value : null!);
 
         result.IsFailure.ShouldBeTrue();
-        result.Error.ShouldBe(Name.RequiredMessage);
+        result.Error.ShouldBe(Errors.ValidNameRequired());
     }
 
     [Fact]
-    public void Create_rejects_a_missing_category()
+    public void RejectMissingCategory_On_Create_WhenNull()
     {
         var result = Dish.Create(Name.Create("Soup").Value, null!);
 
         result.IsFailure.ShouldBeTrue();
-        result.Error.ShouldBe("CategoryId must be a positive integer.");
+        result.Error.ShouldBe(Errors.ValidCategoryRequired());
     }
 
     [Fact]
-    public void ChangeName_updates_only_the_name_and_returns_it()
+    public void ReturnSameEntity_On_ChangeName_WhenDifferent()
     {
         var dish = CreateDish();
         var category = dish.CategoryId;
@@ -51,7 +51,7 @@ public class DishTests
         var result = dish.ChangeName(name);
 
         result.IsSuccess.ShouldBeTrue();
-        result.Value.ShouldBeSameAs(name);
+        result.Value.ShouldBeSameAs(dish);
         dish.Name.ShouldBeSameAs(name);
         dish.CategoryId.ShouldBeSameAs(category);
         dish.Id.ShouldBe(0);
@@ -59,7 +59,7 @@ public class DishTests
     }
 
     [Fact]
-    public void ChangeName_rejects_null_without_changing_state()
+    public void PreserveState_On_ChangeName_WhenNull()
     {
         var dish = CreateDish();
         var name = dish.Name;
@@ -68,14 +68,14 @@ public class DishTests
         var result = dish.ChangeName(null!);
 
         result.IsFailure.ShouldBeTrue();
-        result.Error.ShouldBe(Name.RequiredMessage);
+        result.Error.ShouldBe(Errors.ValidNameRequired());
         dish.Name.ShouldBeSameAs(name);
         dish.CategoryId.ShouldBeSameAs(category);
         dish.ChangeName(Name.Create("Salad").Value).IsSuccess.ShouldBeTrue();
     }
 
     [Fact]
-    public void ChangeName_with_an_equal_value_is_a_noop()
+    public void PreserveNameReference_On_ChangeName_WhenEqual()
     {
         var dish = CreateDish();
         var name = dish.Name;
@@ -83,14 +83,14 @@ public class DishTests
         var result = dish.ChangeName(Name.Create(" Soup ").Value);
 
         result.IsSuccess.ShouldBeTrue();
-        result.Value.ShouldBeSameAs(name);
+        result.Value.ShouldBeSameAs(dish);
         dish.Name.ShouldBeSameAs(name);
     }
 
     [Theory]
     [InlineData(2)]
     [InlineData(int.MaxValue)]
-    public void ChangeCategory_updates_only_the_category_and_returns_it(int value)
+    public void ReturnSameEntity_On_ChangeCategory_WhenDifferent(int value)
     {
         var dish = CreateDish();
         var name = dish.Name;
@@ -99,14 +99,14 @@ public class DishTests
         var result = dish.ChangeCategory(category);
 
         result.IsSuccess.ShouldBeTrue();
-        result.Value.ShouldBeSameAs(category);
+        result.Value.ShouldBeSameAs(dish);
         dish.CategoryId.ShouldBeSameAs(category);
         dish.Name.ShouldBeSameAs(name);
         dish.Id.ShouldBe(0);
     }
 
     [Fact]
-    public void ChangeCategory_with_an_equal_value_is_a_noop()
+    public void PreserveCategoryReference_On_ChangeCategory_WhenEqual()
     {
         var dish = CreateDish();
         var category = dish.CategoryId;
@@ -114,12 +114,12 @@ public class DishTests
         var result = dish.ChangeCategory(CategoryId.Create(1).Value);
 
         result.IsSuccess.ShouldBeTrue();
-        result.Value.ShouldBeSameAs(category);
+        result.Value.ShouldBeSameAs(dish);
         dish.CategoryId.ShouldBeSameAs(category);
     }
 
     [Fact]
-    public void ChangeCategory_rejects_null_without_changing_state()
+    public void PreserveState_On_ChangeCategory_WhenNull()
     {
         var dish = CreateDish();
         var category = dish.CategoryId;
@@ -128,7 +128,7 @@ public class DishTests
         var result = dish.ChangeCategory(null!);
 
         result.IsFailure.ShouldBeTrue();
-        result.Error.ShouldBe("CategoryId must be a positive integer.");
+        result.Error.ShouldBe(Errors.ValidCategoryRequired());
         dish.CategoryId.ShouldBeSameAs(category);
         dish.Name.ShouldBeSameAs(name);
         dish.ChangeCategory(CategoryId.Create(2).Value).IsSuccess.ShouldBeTrue();

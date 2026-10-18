@@ -1,26 +1,27 @@
+using DinnerSpinner.Domain.Features.Dishes;
 using DinnerSpinner.Domain.Features.Categories;
 
 namespace DinnerSpinner.Tests.Domain;
 
-public class CategoryIdTests
+public class CategoryIdShould
 {
     [Theory]
     [InlineData(int.MinValue)]
     [InlineData(-1)]
     [InlineData(0)]
-    public void Create_rejects_nonpositive_values(int value)
+    public void RejectInvalidCategory_On_Create_WhenValueIsNonpositive(int value)
     {
         var result = CategoryId.Create(value);
 
         result.IsFailure.ShouldBeTrue();
-        result.Error.ShouldBe("CategoryId must be a positive integer.");
+        result.Error.ShouldBe(Errors.ValidCategoryRequired());
     }
 
     [Theory]
     [InlineData(1)]
     [InlineData(2)]
     [InlineData(int.MaxValue)]
-    public void Create_preserves_positive_values(int value)
+    public void PreserveValue_On_Create_WhenPositive(int value)
     {
         var result = CategoryId.Create(value);
 
@@ -30,7 +31,7 @@ public class CategoryIdTests
     }
 
     [Fact]
-    public void Equality_uses_the_integer_value()
+    public void CompareIntegerValues_On_Equals()
     {
         var id = CategoryId.Create(1).Value;
         var equal = CategoryId.Create(1).Value;

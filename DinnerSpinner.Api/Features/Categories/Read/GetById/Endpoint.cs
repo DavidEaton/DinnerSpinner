@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using DinnerSpinner.Api.Common;
 using DinnerSpinner.Api.Data;
+using DinnerSpinner.Domain.Shared;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,14 +22,19 @@ public sealed class Endpoint(AppDbContext db)
     {
         var category = await db.Categories
             .AsNoTracking()
-            .FirstOrDefaultAsync(c => c.Id == request.Id, cancellationToken);
+            .FirstOrDefaultAsync(category => category.Id == request.Id, cancellationToken);
 
         if (category is null)
         {
-            await Send.NotFoundAsync("Category not found.", cancellationToken);
-            return;
+            AddError(
+                property: request => request,
+                errorMessage: "Category not found.",
+                severity: Severity.Error,
+                errorCode: ErrorCode.NotFound.ToString());
+
+            ThrowIfAnyErrors();
         }
 
-        await Send.OkAsync(category.ToGetByIdResponse(), cancellationToken);
+        await Send.OkAsync(category!.ToGetByIdResponse(), cancellationToken);
     }
 }

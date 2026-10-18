@@ -1,12 +1,13 @@
+using DinnerSpinner.Domain.Features.Dishes;
 using DinnerSpinner.Domain.Features.Categories;
 using DinnerSpinner.Domain.Features.Common;
 
 namespace DinnerSpinner.Tests.Domain;
 
-public class CategoryTests
+public class CategoryShould
 {
     [Fact]
-    public void Create_retains_a_valid_name_and_starts_without_persisted_identity()
+    public void RetainName_On_Create_WhenValid()
     {
         var name = Name.Create("Dinner").Value;
 
@@ -19,16 +20,16 @@ public class CategoryTests
     }
 
     [Fact]
-    public void Create_rejects_a_missing_name()
+    public void RejectMissingName_On_Create_WhenNull()
     {
         var result = Category.Create(null!);
 
         result.IsFailure.ShouldBeTrue();
-        result.Error.ShouldBe(Name.RequiredMessage);
+        result.Error.ShouldBe(Errors.ValidCategoryRequired());
     }
 
     [Fact]
-    public void ChangeName_updates_the_name_and_returns_the_same_entity()
+    public void ReturnSameEntity_On_ChangeName_WhenDifferent()
     {
         var category = Category.Create(Name.Create("Dinner").Value).Value;
         var replacement = Name.Create("Lunch").Value;
@@ -43,7 +44,7 @@ public class CategoryTests
     }
 
     [Fact]
-    public void ChangeName_rejects_null_without_changing_state()
+    public void PreserveState_On_ChangeName_WhenNull()
     {
         var name = Name.Create("Dinner").Value;
         var category = Category.Create(name).Value;
@@ -51,13 +52,13 @@ public class CategoryTests
         var result = category.ChangeName(null!);
 
         result.IsFailure.ShouldBeTrue();
-        result.Error.ShouldBe(Name.RequiredMessage);
+        result.Error.ShouldBe(Errors.ValidCategoryRequired());
         category.Name.ShouldBeSameAs(name);
         category.ChangeName(Name.Create("Lunch").Value).IsSuccess.ShouldBeTrue();
     }
 
     [Fact]
-    public void ChangeName_with_an_equal_value_is_a_noop()
+    public void PreserveNameReference_On_ChangeName_WhenEqual()
     {
         var name = Name.Create("Dinner").Value;
         var category = Category.Create(name).Value;

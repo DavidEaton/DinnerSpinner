@@ -1,8 +1,9 @@
+using DinnerSpinner.Domain.Features.Dishes;
 using DinnerSpinner.Domain.Features.Common;
 
 namespace DinnerSpinner.Tests.Domain;
 
-public class NameTests
+public class NameShould
 {
     [Theory]
     [InlineData(null)]
@@ -10,24 +11,26 @@ public class NameTests
     [InlineData(" ")]
     [InlineData("\t\r\n")]
     [InlineData("\u2003\u00a0")]
-    public void Create_rejects_missing_names(string? input)
+    public void RejectInvalidInput_On_Create_WhenNameIsMissing(string? input)
     {
-        var result = Name.Create(input);
+        var result = Name.Create(input!);
 
         result.IsFailure.ShouldBeTrue();
-        result.Error.ShouldBe(Name.RequiredMessage);
+        result.Error.ShouldBe(input is null
+            ? Errors.ValidNameRequired()
+            : Errors.ValidLengthName(Name.MinimumLength, Name.MaximumLength));
     }
 
     [Theory]
     [InlineData(1)]
     [InlineData(256)]
     [InlineData(10000)]
-    public void Create_rejects_lengths_outside_the_allowed_range(int length)
+    public void RejectInvalidLength_On_Create_WhenOutsideBounds(int length)
     {
         var result = Name.Create(new string('a', length));
 
         result.IsFailure.ShouldBeTrue();
-        result.Error.ShouldBe(Name.InvalidLengthMessage);
+        result.Error.ShouldBe(Errors.ValidLengthName(Name.MinimumLength, Name.MaximumLength));
     }
 
     [Theory]
@@ -35,7 +38,7 @@ public class NameTests
     [InlineData(3)]
     [InlineData(254)]
     [InlineData(255)]
-    public void Create_accepts_valid_lengths_after_trimming(int length)
+    public void PreserveNormalizedValue_On_Create_WhenLengthIsValid(int length)
     {
         var input = new string('a', length);
 
@@ -49,25 +52,25 @@ public class NameTests
     [Theory]
     [InlineData(" a ")]
     [InlineData("\tZ\n")]
-    public void Create_validates_normalized_length(string input)
+    public void RejectInvalidLength_On_Create_AfterTrimming(string input)
     {
-        var result = Name.Create(input);
+        var result = Name.Create(input!);
 
         result.IsFailure.ShouldBeTrue();
-        result.Error.ShouldBe(Name.InvalidLengthMessage);
+        result.Error.ShouldBe(Errors.ValidLengthName(Name.MinimumLength, Name.MaximumLength));
     }
 
     [Theory]
     [InlineData("  Mac  & Cheese  ", "Mac  & Cheese")]
     [InlineData("\u2003Crème brûlée\u00a0", "Crème brûlée")]
     [InlineData("  Ab  ", "Ab")]
-    public void Create_preserves_case_internal_spaces_and_unicode(string input, string expected)
+    public void PreserveContent_On_Create_WhenTrimmingWhitespace(string input, string expected)
     {
         Name.Create(input).Value.Value.ShouldBe(expected);
     }
 
     [Fact]
-    public void Equality_uses_the_normalized_case_sensitive_value()
+    public void CompareNormalizedValues_On_Equals_WhenCaseDiffers()
     {
         var name = Name.Create("Soup").Value;
         var equal = Name.Create(" Soup ").Value;

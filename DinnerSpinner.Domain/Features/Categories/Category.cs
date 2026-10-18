@@ -1,5 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using DinnerSpinner.Domain.Features.Common;
+using DinnerSpinner.Domain.Features.Dishes;
+using DinnerSpinner.Domain.Shared;
 using Entity = DinnerSpinner.Domain.Abstractions.Entity;
 
 namespace DinnerSpinner.Domain.Features.Categories;
@@ -7,39 +9,28 @@ namespace DinnerSpinner.Domain.Features.Categories;
 public class Category : Entity
 {
     public Name Name { get; private set; }
+    private Category(Name name) => Name = name;
 
-    private Category(Name name)
-        => Name = name;
+    public static Result<Category, Error> Create(Name name) =>
+        name is null
+            ? Errors.ValidCategoryRequired()
+            : new Category(name);
 
-    public static Result<Category> Create(Name name)
+    public Result<Category, Error> ChangeName(Name changedName) =>
+        changedName is null
+            ? Errors.ValidCategoryRequired()
+            : (Name == changedName)
+                ? this // no-op
+                : Mutate(changedName);
+
+    private Result<Category, Error> Mutate(Name changedName)
     {
-        if (IsMissing(name))
-            return Fail(Name.RequiredMessage);
-
-        return Result.Success(new Category(name));
+        Name = changedName;
+        return this;
     }
 
-    public Result<Category> ChangeName(Name changedName)
-    {
-        if (IsMissing(changedName))
-            return Fail(Name.RequiredMessage);
-
-        if (Name != changedName)
-            Name = changedName;
-
-        return Result.Success(this);
-    }
-
-    private static Result<Category> Fail(string message) =>
-        Result.Failure<Category>(message);
-    
-    private static bool IsMissing(Name name) =>
-        name is null || string.IsNullOrWhiteSpace(name.Value);
-
-    public override string ToString()
-        => Name.ToString();
+    public override string ToString() => Name.ToString();
 
     // Entity Framework requires a parameterless constructor for entity materialization
-    protected Category() =>
-        Name = null!;
+    protected Category() => Name = null!;
 }

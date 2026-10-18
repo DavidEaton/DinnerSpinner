@@ -5,10 +5,10 @@ using DinnerSpinner.Domain.Features.Dishes;
 
 namespace DinnerSpinner.Tests.Domain;
 
-public class EntityTests
+public class EntityShould
 {
     [Fact]
-    public void An_entity_equals_itself_even_before_persistence()
+    public void EqualSameReference_On_Equals_WhenTransient()
     {
         Entity entity = Category.Create(Name.Create("Dinner").Value).Value;
         Entity sameReference = entity;
@@ -19,7 +19,7 @@ public class EntityTests
     }
 
     [Fact]
-    public void Distinct_transient_entities_are_not_equal_even_with_equal_names()
+    public void RejectDistinctEntities_On_Equals_WhenTransient()
     {
         var name = Name.Create("Dinner").Value;
         Entity first = Category.Create(name).Value;
@@ -38,7 +38,7 @@ public class EntityTests
     [InlineData(0, 1, false)]
     [InlineData(1, 0, false)]
     [InlineData(0, 0, false)]
-    public void Equality_uses_nonzero_identity_for_the_same_runtime_type(int firstId, int secondId, bool equal)
+    public void CompareNonzeroIdentity_On_Equals_WhenSameType(int firstId, int secondId, bool equal)
     {
         Entity first = new StoredCategory(firstId, "Dinner");
         Entity second = new StoredCategory(secondId, "Lunch");
@@ -52,7 +52,7 @@ public class EntityTests
     }
 
     [Fact]
-    public void Different_runtime_types_are_not_equal_even_with_the_same_identity()
+    public void RejectOtherType_On_Equals_WhenIdentityMatches()
     {
         Entity category = new StoredCategory(1, "Dinner");
         Entity dish = new StoredDish(1);
@@ -64,7 +64,7 @@ public class EntityTests
     }
 
     [Fact]
-    public void Equality_handles_null_and_unrelated_objects()
+    public void HandleNullAndOtherObjects_On_Equals()
     {
         Entity entity = new StoredCategory(1, "Dinner");
         Entity? missing = null;
@@ -81,7 +81,7 @@ public class EntityTests
     }
 
     [Fact]
-    public void Name_changes_do_not_change_persisted_identity_or_hash_code()
+    public void PreserveIdentity_On_ChangeName_WhenPersisted()
     {
         var category = new StoredCategory(1, "Dinner");
         var hashCode = category.GetHashCode();
