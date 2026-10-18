@@ -1,6 +1,5 @@
 ﻿using DinnerSpinner.Api.Common;
 using DinnerSpinner.Api.Data;
-using DinnerSpinner.Domain.Features.Categories;
 using DinnerSpinner.Domain.Features.Common;
 using DinnerSpinner.Domain.Features.Dishes;
 using DinnerSpinner.Domain.Shared;
@@ -52,12 +51,10 @@ public sealed class Endpoint(AppDbContext db)
             ThrowIfAnyErrors();
         }
 
-        var categoryName = category!.Name.Value;
-
         var duplicateExists = await db.Dishes.AnyAsync(
             dish => dish.Id != request.Dish.Id &&
                  dish.Name.Value == trimmedName &&
-                 dish.CategoryId.Value == categoryId,
+                 dish.Category.Id == categoryId,
             cancellationToken);
         if (duplicateExists)
         {
@@ -69,7 +66,7 @@ public sealed class Endpoint(AppDbContext db)
             ThrowIfAnyErrors();
         }
 
-        if (dish!.Name.Value == trimmedName)
+        if (dish!.Name.Value != trimmedName)
         {
             var newNameResult = Name.Create(trimmedName);
             if (newNameResult.IsFailure)
@@ -94,20 +91,9 @@ public sealed class Endpoint(AppDbContext db)
             }
         }
 
-        if (dish.CategoryId.Value != categoryId)
+        if (dish.Category.Id != categoryId)
         {
-            var newCategoryIdResult = CategoryId.Create(categoryId);
-            if (newCategoryIdResult.IsFailure)
-            {
-                AddError(
-                    property: request => request.Dish.CategoryId,
-                    errorMessage: Errors.ValidCategoryRequired().ToString(),
-                    errorCode: ErrorCode.Validation.ToString());
-
-                ThrowIfAnyErrors();
-            }
-
-            var changeCategoryResult = dish.ChangeCategory(newCategoryIdResult.Value);
+            var changeCategoryResult = dish.ChangeCategory(category!);
             if (changeCategoryResult.IsFailure)
             {
                 AddError(
@@ -120,6 +106,6 @@ public sealed class Endpoint(AppDbContext db)
         }
 
         await db.SaveChangesAsync(cancellationToken);
-        await Send.OkAsync(dish.ToUpdateResponse(categoryName), cancellationToken);
+        await Send.OkAsync(dish.ToUpdateResponse(), cancellationToken);
     }
 }

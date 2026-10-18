@@ -22,17 +22,11 @@ public sealed class Endpoint(AppDbContext db)
     {
         var rows = await db.Dishes
             .AsNoTracking()
-            .Join(
-                db.Categories.AsNoTracking(),
-                dish => dish.CategoryId.Value,
-                category => category.Id,
-                (dish, category) => new DishReadRow(
-                    dish.Id,
-                    dish.Name.Value,
-                    dish.CategoryId.Value,
-                    category.Name.Value
-                )
-            )
+            .Select(dish => new DishReadRow(
+                dish.Id,
+                dish.Name.Value,
+                dish.Category.Id,
+                dish.Category.Name.Value))
             .ToListAsync(cancellationToken);
 
         var response = new Response

@@ -17,14 +17,12 @@ namespace DinnerSpinner.Api.Features.Dishes
                .HasMaxLength(255)
                .IsRequired();
 
-            builder
-                .Property(dish => dish.CategoryId)
-                .HasColumnType("int")
-                .HasColumnName("CategoryId")
+            builder.HasOne(dish => dish.Category)
+                .WithMany()
+                .HasForeignKey("CategoryId")
                 .IsRequired();
-                // .HasConversion(
-                //     categoryId => categoryId.Value,
-                //     value => CategoryId.Create(value).Value);
+
+            builder.Navigation(dish => dish.Category).AutoInclude();
         }
     }
 }

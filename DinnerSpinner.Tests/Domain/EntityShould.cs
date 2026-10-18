@@ -121,7 +121,7 @@ public class EntityShould
         {
             Id = id;
             ChangeName(Name.Create("Soup").Value);
-            ChangeCategory(CategoryId.Create(1).Value);
+            ChangeCategory(Category.Create(Name.Create("Dinner").Value).Value);
         }
     }
 }

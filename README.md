@@ -46,6 +46,12 @@ The domain uses **Entities** and **Value Objects** to model the problem space:
 
 * **Value Objects** (e.g., `Name`) are immutable and can only be created through factory methods that validate invariants such as length, whitespace normalization, and required constraints.
 
+A `Dish` references a `Category` entity directly. Creating or changing a dish’s
+category requires a category rather than a positive integer wrapped in a value
+object. The API resolves request identifiers to existing categories; identifiers
+remain primitive fields in HTTP contracts. EF Core stores the relationship in a
+required shadow `CategoryId` foreign key and loads the category with the dish.
+
 ### Value object creation pattern
 
 Value objects follow a consistent, defensive creation pattern to ensure invalid domain state is unrepresentable:
