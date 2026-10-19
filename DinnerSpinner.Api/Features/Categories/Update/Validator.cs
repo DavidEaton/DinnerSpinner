@@ -1,4 +1,4 @@
-using DinnerSpinner.Api.Features.Common;
+﻿using DinnerSpinner.Api.Features.Common;
 using DinnerSpinner.Domain.Features.Common;
 using FastEndpoints;
 
@@ -8,5 +8,6 @@ public class Validator : Validator<Request>
 {
     public Validator() =>
         RuleFor(request => request.Name)
-            .MustBeValueObject<Request, Name, string>(Name.Create);
+            .MustBeValueObject<Request, Name, string>(
+                name => Name.Create(name).Value);
 }

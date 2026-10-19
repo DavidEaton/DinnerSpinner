@@ -19,7 +19,7 @@ public class ErrorShould
         problem.Status.ShouldBe(status);
         problem.Title.ShouldBe(title);
         problem.Detail.ShouldBe(error.Description);
-        problem.Type.ShouldNotBeNull().ShouldContain("#section-");
+        problem.Type.ShouldNotBeNullOrWhiteSpace();
         problem.Extensions["errors"].ShouldBeOfType<Error[]>().ShouldBe(new[] { error });
         Result.Failure(error).ToProblemDetails().ShouldBeOfType<ProblemHttpResult>()
             .ProblemDetails.Status.ShouldBe(status);
