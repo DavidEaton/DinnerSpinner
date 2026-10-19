@@ -22,7 +22,7 @@ public sealed class Endpoint(AppDbContext db)
     {
         var rows = await db.Dishes
             .AsNoTracking()
-            .Select(dish => new DishReadRow(
+            .Select(dish => new ReadRow(
                 dish.Id,
                 dish.Name.Value,
                 dish.Category.Id,

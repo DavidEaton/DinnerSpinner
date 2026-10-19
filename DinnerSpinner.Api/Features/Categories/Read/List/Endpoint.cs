@@ -22,9 +22,20 @@ public sealed class Endpoint(AppDbContext db)
     public override async Task HandleAsync(CancellationToken cancellationToken)
     {
         var categories = await db.Categories
-            .Select(category => category.ToListResponse())
+            .AsNoTracking()
+            .Select(category => new ReadRow(
+                category.Id,
+                category.Name.Value))
             .ToListAsync(cancellationToken);
 
-        await Send.OkAsync(categories, cancellationToken);
+        var response = new Response
+        {
+            Categories = categories
+                .Select(row => row
+                .ToContract())
+                .ToList()
+        };
+
+        await Send.OkAsync(response, cancellationToken);
     }
 }

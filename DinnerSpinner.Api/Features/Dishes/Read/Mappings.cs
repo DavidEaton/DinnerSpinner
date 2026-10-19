@@ -2,7 +2,7 @@
 
 internal static class Mappings
 {
-    public static Contract ToContract(this DishReadRow row) =>
+    public static Contract ToContract(this ReadRow row) =>
         new()
         {
             Id = row.Id,
@@ -11,7 +11,7 @@ internal static class Mappings
             CategoryName = row.CategoryName
         };
 
-    public static GetById.Response ToGetByIdResponse(this DishReadRow row) =>
+    public static GetById.Response ToGetByIdResponse(this ReadRow row) =>
         new()
         {
             Dish = row.ToContract()

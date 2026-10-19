@@ -1,37 +1,36 @@
 using DinnerSpinner.Domain.Shared;
 
-namespace DinnerSpinner.Domain.Features.Dishes
+namespace DinnerSpinner.Domain.Features.Dishes;
+
+public static class Errors
 {
-    public static class Errors
-    {
-        public static Error Empty()
-            => Error.Validation(
-                code: "Dish.Errors.Empty",
-                description: "Name and Category are required.");
+    public static Error Empty()
+        => Error.Validation(
+            code: "Dish.Errors.Empty",
+            description: "Name and Category are required.");
 
-        public static Error ValidNameRequired()
-            => Error.Validation(
-                code: "Dish.Errors.ValidNameRequired",
-                description: "Name is required.");
+    public static Error ValidNameRequired()
+        => Error.Validation(
+            code: "Dish.Errors.ValidNameRequired",
+            description: "Name is required.");
 
-        public static Error ValidCategoryRequired()
-            => Error.Validation(
-                code: "Dish.Errors.ValidCategoryRequired",
-                description: "Category is required.");
+    public static Error ValidCategoryRequired()
+        => Error.Validation(
+            code: "Dish.Errors.ValidCategoryRequired",
+            description: "Category is required.");
 
-        public static Error NotFound(int id)
-             => Error.NotFound(
-                code: "Dish.Errors.NotFound",
-                description: $"Dish with Id '{id}' was not found");
+    public static Error NotFound(int id)
+         => Error.NotFound(
+            code: "Dish.Errors.NotFound",
+            description: $"Dish with Id '{id}' was not found");
 
-        public static Error Conflict(string name, string category)
-            => Error.Conflict(
-                code: "Dish.Errors.Conflict",
-                description: $"Dish name '{name}' in category '{category}' is taken.");
+    public static Error Conflict(string name, string category)
+        => Error.Conflict(
+            code: "Dish.Errors.Conflict",
+            description: $"Dish name '{name}' in category '{category}' is taken.");
 
-        public static Error ValidLengthName(int mnimumLength, int maximumLength)
-             => Error.Validation(
-                 code: "Dish.Errors.ValidLengthName",
-                 description: $"Name must be between {mnimumLength} and {maximumLength} characters in length");
-    }
+    public static Error ValidLengthName(int mnimumLength, int maximumLength)
+         => Error.Validation(
+             code: "Dish.Errors.ValidLengthName",
+             description: $"Name must be between {mnimumLength} and {maximumLength} characters in length");
 }

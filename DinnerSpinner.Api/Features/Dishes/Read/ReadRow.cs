@@ -1,6 +1,6 @@
 namespace DinnerSpinner.Api.Features.Dishes.Read;
 
-internal sealed record DishReadRow(
+internal sealed record ReadRow(
     int Id,
     string Name,
     int CategoryId,

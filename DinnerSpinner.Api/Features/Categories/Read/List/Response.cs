@@ -1,6 +1,5 @@
-﻿namespace DinnerSpinner.Api.Features.Categories.Read.List;
+using System.Collections.Generic;
 
-public sealed record Response : IResponse
-{
-    public Contract Category { get; init; } = new();
-}
+namespace DinnerSpinner.Api.Features.Categories.Read.List;
+
+public readonly record struct Response(List<Contract> Categories);

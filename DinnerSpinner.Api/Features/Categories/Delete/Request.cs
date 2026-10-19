@@ -1,6 +1,3 @@
 ﻿namespace DinnerSpinner.Api.Features.Categories.Delete;
 
-public sealed record Request
-{
-    public int Id { get; init; }
-}
+public readonly record struct Request(int Id);

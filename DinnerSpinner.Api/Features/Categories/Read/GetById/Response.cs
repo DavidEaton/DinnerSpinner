@@ -1,6 +1,3 @@
-﻿namespace DinnerSpinner.Api.Features.Categories.Read.GetById;
+namespace DinnerSpinner.Api.Features.Categories.Read.GetById;
 
-public sealed record Response : IResponse
-{
-    public Contract Category { get; init; } = new();
-}
+public readonly record struct Response(Contract Category);

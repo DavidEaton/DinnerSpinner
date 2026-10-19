@@ -1,12 +1,11 @@
-namespace DinnerSpinner.Domain.Shared
+namespace DinnerSpinner.Domain.Shared;
+
+public enum ErrorType
 {
-    public enum ErrorType
-    {
-        Failure = 0,
-        Validation = 1,
-        NotFound = 2,
-        Conflict = 3,
-        Required = 5,
-        None = 4
-    }
+    Failure = 0,
+    Validation = 1,
+    NotFound = 2,
+    Conflict = 3,
+    Required = 5,
+    None = 4
 }

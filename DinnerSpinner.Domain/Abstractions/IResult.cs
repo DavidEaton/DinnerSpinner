@@ -1,9 +1,8 @@
-namespace DinnerSpinner.Domain.Abstractions
-{
-    public interface IResult
-    {
-        bool IsFailure { get; }
+namespace DinnerSpinner.Domain.Abstractions;
 
-        bool IsSuccess { get; }
-    }
+public interface IResult
+{
+    bool IsFailure { get; }
+
+    bool IsSuccess { get; }
 }

@@ -5,50 +5,49 @@ using DinnerSpinner.Domain.Shared;
 using FluentValidation.Results;
 using Entity = DinnerSpinner.Domain.Abstractions.Entity;
 
-namespace DinnerSpinner.Api.Features.Common
+namespace DinnerSpinner.Api.Features.Common;
+
+// Extension methods for validating domain objects using FluentValidation. Our domain objects are responsible for enforcing all validation rules/domain invariants; we leverage that in our API validators to avoid duplication of validation logic. Many thanks to Vladimir Khorikov for this approach, which he describes in his Pluralsight course "FluentValidation Fundamentals" (https://www.pluralsight.com/courses/fluentvalidation-fundamentals).
+public static class ApplicationValidators
 {
-    // Extension methods for validating domain objects using FluentValidation. Our domain objects are responsible for enforcing all validation rules/domain invariants; we leverage that in our API validators to avoid duplication of validation logic. Many thanks to Vladimir Khorikov for this approach, which he describes in his Pluralsight course "FluentValidation Fundamentals" (https://www.pluralsight.com/courses/fluentvalidation-fundamentals).
-    public static class ApplicationValidators
-    {
-        public static IRuleBuilderOptions<T, TElement> MustBeValueObject<T, TValueObject, TElement>(
-            this IRuleBuilder<T, TElement> ruleBuilder,
-            Func<TElement, CSharpFunctionalExtensions.Result<TValueObject, Error>> factoryMethod)
-            where TValueObject : IValueObject =>
-                (IRuleBuilderOptions<T, TElement>)ruleBuilder.Custom((value, context) =>
+    public static IRuleBuilderOptions<T, TElement> MustBeValueObject<T, TValueObject, TElement>(
+        this IRuleBuilder<T, TElement> ruleBuilder,
+        Func<TElement, CSharpFunctionalExtensions.Result<TValueObject, Error>> factoryMethod)
+        where TValueObject : IValueObject =>
+            (IRuleBuilderOptions<T, TElement>)ruleBuilder.Custom((value, context) =>
+            {
+                if (value is null)
                 {
-                    if (value is null)
-                    {
-                        context.AddFailure("Cannot be null.");  
-                        return;
-                    }
+                    context.AddFailure("Cannot be null.");  
+                    return;
+                }
 
-                    var result = factoryMethod(value);
+                var result = factoryMethod(value);
 
-                    if (result.IsFailure)
-                    {
-                        context.AddFailure(new ValidationFailure(
-                            context.PropertyPath, result.Error.ToString()));
-                    }
-                });
-
-        public static IRuleBuilderOptions<T, TElement> MustBeEntity<T, TElement, TEntity>(
-            this IRuleBuilder<T, TElement> ruleBuilder,
-            Func<TElement, Result<TEntity>> factoryMethod)
-            where TEntity : Entity =>
-                (IRuleBuilderOptions<T, TElement>)ruleBuilder.Custom((value, context) =>
+                if (result.IsFailure)
                 {
-                    if (value is null)
-                    {
-                        context.AddFailure("Cannot be null.");
-                        return;
-                    }
-                    var result = factoryMethod(value);
+                    context.AddFailure(new ValidationFailure(
+                        context.PropertyPath, result.Error.ToString()));
+                }
+            });
 
-                    if (result.IsFailure)
-                    {
-                        context.AddFailure(new ValidationFailure(
-                            context.PropertyPath, result.Error.ToString()));
-                    }
-                });
-    }
+    public static IRuleBuilderOptions<T, TElement> MustBeEntity<T, TElement, TEntity>(
+        this IRuleBuilder<T, TElement> ruleBuilder,
+        Func<TElement, Result<TEntity>> factoryMethod)
+        where TEntity : Entity =>
+            (IRuleBuilderOptions<T, TElement>)ruleBuilder.Custom((value, context) =>
+            {
+                if (value is null)
+                {
+                    context.AddFailure("Cannot be null.");
+                    return;
+                }
+                var result = factoryMethod(value);
+
+                if (result.IsFailure)
+                {
+                    context.AddFailure(new ValidationFailure(
+                        context.PropertyPath, result.Error.ToString()));
+                }
+            });
 }
