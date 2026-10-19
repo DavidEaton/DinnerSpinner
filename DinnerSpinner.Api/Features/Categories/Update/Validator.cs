@@ -9,5 +9,5 @@ public class Validator : Validator<Request>
     public Validator() =>
         RuleFor(request => request.Name)
             .MustBeValueObject<Request, Name, string>(
-                name => Name.Create(name));
+                name => Name.Create(name).Value);
 }
