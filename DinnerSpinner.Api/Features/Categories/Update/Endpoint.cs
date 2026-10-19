@@ -1,9 +1,9 @@
-﻿using DinnerSpinner.Api.Common;
+using CSharpFunctionalExtensions;
+using DinnerSpinner.Api.Common;
 using DinnerSpinner.Api.Data;
 using DinnerSpinner.Domain.Features.Common;
 using DinnerSpinner.Domain.Shared;
 using FastEndpoints;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,70 +20,43 @@ public sealed class Endpoint(AppDbContext db)
         AllowAnonymous();
         Summary(s => s.Summary = "Update a category by id");
     }
+
     public override async Task HandleAsync(Request request, CancellationToken cancellationToken)
     {
-        var nameTrimmed = request!.Name.Trim();
-        var id = request!.Id;
+        // FastEndpoints has validated the request before invoking this handler.
+        var name = Name.Create(request.Name).Value;
 
-        var categoryFromDatabase = await db.Categories
+        var id = Route<int>("id");
+        var category = await db.Categories
             .FirstOrDefaultAsync(category => category.Id == id, cancellationToken);
-        if (categoryFromDatabase is null)
+        if (category is null)
         {
-            AddError(
-                property: request => request.Id,
-                errorMessage: "Category not found.",
-                severity: Severity.Error,
-                errorCode: ErrorCode.NotFound.ToString());
-
-            ThrowIfAnyErrors(StatusCodes.Status404NotFound);
+            await Send.ResultAsync(Error.NotFound(
+                "Category.Errors.NotFound",
+                $"Category with Id '{id}' was not found.").ToProblemDetails());
+            return;
         }
 
         var duplicateExists = await db.Categories.AnyAsync(
-            category =>
-            category.Id != id
-            &&
-            category.Name.Value == nameTrimmed,
+            other => other.Id != id && other.Name.Value == name.Value,
             cancellationToken);
         if (duplicateExists)
         {
-            AddError(
-                property: request => request,
-                errorMessage: $"A category named '{nameTrimmed}' already exists.",
-                errorCode: ErrorCode.Conflict.ToString(),
-                severity: Severity.Error);
-
-            ThrowIfAnyErrors(StatusCodes.Status409Conflict);
+            await Send.ResultAsync(Error.Conflict(
+                "Category.Errors.Conflict",
+                $"A category named '{name.Value}' already exists.").ToProblemDetails());
+            return;
         }
 
-        var nameResult = Name.Create(nameTrimmed);
-        if (nameResult.IsFailure)
-        {
-            AddError(
-                property: request => request.Name,
-                errorMessage: nameResult.Error.ToString(),
-                severity: Severity.Error,
-                errorCode: ErrorCode.Validation.ToString());
-
-            ThrowIfAnyErrors(StatusCodes.Status400BadRequest);
-        }
-
-        if (categoryFromDatabase!.Name != nameResult.Value)
-        {
-            var changeNameResult = categoryFromDatabase.ChangeName(nameResult.Value);
-            if (changeNameResult.IsFailure)
+        var changed = category.Name != name;
+        await category.ChangeName(name).Match(
+            async updated =>
             {
-                AddError(
-                    property: request => request.Name,
-                    errorMessage: changeNameResult.Error.ToString(),
-                    severity: Severity.Error,
-                    errorCode: ErrorCode.Validation.ToString());
+                if (changed)
+                    await db.SaveChangesAsync(cancellationToken);
 
-                ThrowIfAnyErrors(StatusCodes.Status400BadRequest);
-            }
-            
-            await db.SaveChangesAsync(cancellationToken);
-        }
-
-        await Send.OkAsync(categoryFromDatabase!.ToUpdateResponse(), cancellationToken);
+                await Send.OkAsync(updated.ToUpdateResponse(), cancellationToken);
+            },
+            error => Send.ResultAsync(error.ToProblemDetails()));
     }
 }

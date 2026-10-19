@@ -81,6 +81,11 @@ The API layer translates domain results into consistent HTTP responses:
 * `404`  missing resources
 * `409`  conflicts (e.g., duplicate dish names within a category)
 
+Category updates handle mutation results with `Match`. Missing categories and
+duplicate names use the shared `Error` factories and `ToProblemDetails` adapter,
+backed by ASP.NET Core's `Results.Problem`, to return `application/problem+json`
+with the domain error code and description.
+
 This approach keeps:
 
 * domain logic deterministic and testable

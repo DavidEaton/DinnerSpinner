@@ -1,6 +1,7 @@
 using System;
 // using CSharpFunctionalExtensions;
 using DinnerSpinner.Domain.Abstractions;
+using DinnerSpinner.Domain.Shared;
 using FluentValidation.Results;
 using Entity = DinnerSpinner.Domain.Abstractions.Entity;
 
@@ -11,7 +12,7 @@ namespace DinnerSpinner.Api.Features.Common
     {
         public static IRuleBuilderOptions<T, TElement> MustBeValueObject<T, TValueObject, TElement>(
             this IRuleBuilder<T, TElement> ruleBuilder,
-            Func<TElement, Result<TValueObject>> factoryMethod)
+            Func<TElement, CSharpFunctionalExtensions.Result<TValueObject, Error>> factoryMethod)
             where TValueObject : IValueObject =>
                 (IRuleBuilderOptions<T, TElement>)ruleBuilder.Custom((value, context) =>
                 {
