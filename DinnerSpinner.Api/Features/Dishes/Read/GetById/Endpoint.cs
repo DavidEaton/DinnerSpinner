@@ -37,7 +37,7 @@ public sealed class Endpoint(AppDbContext db)
         var row = await db.Dishes
             .AsNoTracking()
             .Where(dish => dish.Id == request.Id)
-            .Select(dish => new DishReadRow(
+            .Select(dish => new ReadRow(
                 dish.Id,
                 dish.Name.Value,
                 dish.Category.Id,

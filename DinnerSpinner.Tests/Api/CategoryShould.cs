@@ -41,6 +41,38 @@ public class CategoryShould : IAsyncLifetime
         dinnerId = dinner.Id;
     }
 
+    [Fact]
+    public async Task ReturnNormalizedCategory_On_Create()
+    {
+        using var response = await client.PostAsJsonAsync("/api/categories", new { Name = "  Breakfast  " });
+        response.StatusCode.ShouldBe(HttpStatusCode.Created);
+        var envelope = await response.Content.ReadFromJsonAsync<JsonElement>();
+        envelope.GetProperty("traceId").GetString().ShouldNotBeNullOrWhiteSpace();
+        var category = envelope.GetProperty("data").GetProperty("category");
+        var id = category.GetProperty("id").GetInt32();
+        id.ShouldBeGreaterThan(0);
+        category.GetProperty("name").GetString().ShouldBe("Breakfast");
+
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        (await db.Categories.SingleAsync(category => category.Id == id)).Name.Value.ShouldBe("Breakfast");
+    }
+
+    [Fact]
+    public async Task ReturnCategoryCollection_On_List()
+    {
+        using var response = await client.GetAsync("/api/categories");
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var envelope = await response.Content.ReadFromJsonAsync<JsonElement>();
+        envelope.GetProperty("traceId").GetString().ShouldNotBeNullOrWhiteSpace();
+        var categories = envelope.GetProperty("data").GetProperty("categories").EnumerateArray().ToArray();
+        categories.Length.ShouldBe(2);
+        var dinner = categories.Single(category => category.GetProperty("id").GetInt32() == dinnerId);
+        dinner.GetProperty("name").GetString().ShouldBe("Dinner");
+        categories.Select(category => category.GetProperty("name").GetString())
+            .ShouldBe(new[] { "Dinner", "Lunch" }, ignoreOrder: true);
+    }
+
     [Theory]
     [InlineData("  Supper  ", "Supper")]
     [InlineData("  Dinner  ", "Dinner")]

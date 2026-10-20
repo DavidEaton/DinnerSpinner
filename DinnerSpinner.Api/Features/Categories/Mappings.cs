@@ -28,10 +28,4 @@ internal static class Mappings
         {
             Category = category.ToContract()
         };
-
-    public static Read.List.Response ToListResponse(this Category category) =>
-        new()
-        {
-            Category = category.ToContract()
-        };
 }
